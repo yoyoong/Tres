@@ -14,18 +14,19 @@ from pahelix.model_zoo.gem_model import GeoGNNModel
 import json
 import pgl
 from pahelix.datasets.inmemory_dataset import InMemoryDataset
-import random
 from sklearn.model_selection import train_test_split
 from paddle import optimizer
 import numpy as np
-from pprint import pprint
 import paddle.nn.functional as F
 from sklearn.metrics import average_precision_score, roc_auc_score, accuracy_score, precision_score, recall_score, \
     f1_score, confusion_matrix
-import warnings
+import warnings, os
 
 warnings.filterwarnings('ignore')
-import paddle.nn.functional as F
+os.environ['FLAGS_cudnn_deterministic'] = 'True'
+
+pdl.seed(123)
+np.random.seed(2021)
 
 # 导入训练集
 train_df = pd.read_csv('data/train.csv')
@@ -62,16 +63,15 @@ train_df.to_csv('train_preprocessed.csv', index=0)
 # 将smiles列表保存为smiles_list.pkl文件
 train_df = pd.read_csv('train_preprocessed.csv')  # 读取预处理好的训练数据
 smiles_list = train_df["SMILES"].tolist()
-pkl.dump(smiles_list, open('work/train_smiles_list.pkl', 'wb'))
+pkl.dump(smiles_list, open('GEM/work/train_smiles_list.pkl', 'wb'))
 
 # 测试集
 test_df = pd.read_csv('data/test_nolabel.csv')
 smiles_list = test_df["SMILES"].tolist()
-pkl.dump(smiles_list, open('work/test_smiles_list.pkl', 'wb'))
+pkl.dump(smiles_list, open('GEM/work/test_smiles_list.pkl', 'wb'))
 
 # 使用分子力场将smiles转化为3d分子图，并保存为smiles_to_graph_dict.pkl文件
 mutex = Lock()  # 互斥锁，防止多个线程同时修改某一文件或某一全局变量，引发未知错误
-
 
 def calculate_3D_structure_(smiles_list):
     n = len(smiles_list)
@@ -93,7 +93,7 @@ def calculate_3D_structure_(smiles_list):
         except:
             print("Invalid smiles!", smiles)
             mutex.acquire()
-            with open('work/invalid_smiles.txt', 'a') as f:
+            with open('GEM/work/invalid_smiles.txt', 'a') as f:
                 # 生成失败的smiles写入txt文件保存在该目录下
                 f.write(str(smiles) + '\n')
             mutex.release()
@@ -104,9 +104,7 @@ def calculate_3D_structure_(smiles_list):
         smiles_to_graph_dict[smiles] = molecule_graph
         mutex.release()  # 释放锁
 
-
 # for mode in ['train', 'test']:
-# # for mode in ['test']:
 #     if mode == 'train':
 #         smiles_list = train_df["SMILES"].tolist()
 #     else:
@@ -128,8 +126,8 @@ def calculate_3D_structure_(smiles_list):
 
 
 # 将smiles、graph、label构建成一个列表，并保存为data_list.pkl文件，该文件为GEM读取的数据文件
-train_smiles_to_graph_dict = pkl.load(open(f'work/train_smiles_to_graph_dict.pkl', 'rb'))
-test_smiles_to_graph_dict = pkl.load(open(f'work/test_smiles_to_graph_dict.pkl', 'rb'))
+train_smiles_to_graph_dict = pkl.load(open(f'GEM/work/train_smiles_to_graph_dict.pkl', 'rb'))
+test_smiles_to_graph_dict = pkl.load(open(f'GEM/work/test_smiles_to_graph_dict.pkl', 'rb'))
 train_data_list = []
 test_data_list = []
 
@@ -156,8 +154,8 @@ for index, row in test_df.iterrows():
     }
     test_data_list.append(data_item)
 
-pkl.dump(train_data_list, open('work/train_data_list.pkl', 'wb'))
-pkl.dump(test_data_list, open('work/test_data_list.pkl', 'wb'))
+pkl.dump(train_data_list, open('GEM/work/train_data_list.pkl', 'wb'))
+pkl.dump(test_data_list, open('GEM/work/test_data_list.pkl', 'wb'))
 
 
 class ADMET(nn.Layer):
@@ -205,7 +203,7 @@ def collate_fn(data_batch):
         ba_g = pgl.Graph(
             num_nodes=len(graph['edges']),
             edges=graph['BondAngleGraph_edges'],
-            node_feat={},
+            node_feat={name: graph[name] for name in bond_names + bond_float_names},
             edge_feat={name: graph[name] for name in bond_angle_float_names})
         atom_bond_graph_list.append(ab_g)
         bond_angle_graph_list.append(ba_g)
@@ -220,7 +218,7 @@ def collate_fn(data_batch):
 def get_data_loader(mode, batch_size):
     if mode == 'train':
         # 训练模式下将train_data_list划分训练集和验证集，返回对应的DataLoader
-        data_list = pkl.load(open(f'work/train_data_list.pkl', 'rb'))  # 读取data_list
+        data_list = pkl.load(open(f'GEM/work/train_data_list.pkl', 'rb'))  # 读取data_list
 
         train_data_list, valid_data_list = train_test_split(data_list, test_size=0.2, random_state=42)
         print(f'train: {len(train_data_list)}, valid: {len(valid_data_list)}')
@@ -235,7 +233,7 @@ def get_data_loader(mode, batch_size):
 
     elif mode == 'test':
         # 推理模式下直接读取test_data_list, 返回test_data_loader
-        data_list = pkl.load(open(f'work/test_data_list.pkl', 'rb'))
+        data_list = pkl.load(open(f'GEM/work/test_data_list.pkl', 'rb'))
 
         test_dataset = InMemoryDataset(data_list)
         test_data_loader = test_dataset.get_data_loader(
@@ -289,7 +287,7 @@ def trial(model_version, model, batch_size, criterion, scheduler, opt):
             # 保存score最大时的模型权重
             current_best_metric = score
             current_best_epoch = epoch
-            pdl.save(model.state_dict(), "weight/" + model_version + ".pkl")
+            pdl.save(model.state_dict(), "trainedWeight/" + model_version + ".pkl")
         print('current_epoch', epoch, 'current_best_epoch', current_best_epoch, 'current_best_metric',
               current_best_metric)
         if epoch > current_best_epoch + max_bearable_epoch:
@@ -325,7 +323,7 @@ def evaluate(label_true, label_predict):
 # random.seed(SEED)
 
 model = ADMET()
-batch_size = 512  # batch size
+batch_size = 1024  # batch size
 criterion = nn.CrossEntropyLoss()  # 损失函数
 scheduler = optimizer.lr.CosineAnnealingDecay(learning_rate=1e-3, T_max=15)  # 余弦退火学习率
 opt = optimizer.Adam(scheduler, parameters=model.parameters(), weight_decay=1e-5)  # 优化器
@@ -337,7 +335,7 @@ def test(model_version):
     test_data_loader = get_data_loader(mode='test', batch_size=1024)
 
     model = ADMET()
-    model.set_state_dict(pdl.load("weight/" + model_version + ".pkl"))  # 导入训练好的的模型权重
+    model.set_state_dict(pdl.load("GEM/trainedWeight/" + model_version + ".pkl"))  # 导入训练好的的模型权重
     model.eval()
 
     all_result = []
