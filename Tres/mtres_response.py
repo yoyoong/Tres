@@ -5,10 +5,13 @@ import os, sys, pandas, numpy, pathlib
 import CytoSig
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-E', "--expression_file", type=str, default=None, required=True, help="Gene expression file.")
-parser.add_argument('-G', "--genesets_GMT_file", type=str, default=None, required=True, help="Background gene sets in GMT format.")
-parser.add_argument('-S', "--signature_name_file", type=str, default=None, required=True, help="Names of the signatures, one name in one line.")
-parser.add_argument('-O', "--output_tag", type=str, default=None, required=True, help="Prefix for output files.")
+parser.add_argument('-E', "--expression_file", type=str, required=False, help="Gene expression file.",
+                    default='/sibcb2/bioinformatics/ImmuneDNB/Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
+parser.add_argument('-G', "--genesets_GMT_file", type=str, required=False, help="Background gene sets in GMT format.",
+                    default='/sibcb2/bioinformatics/ImmuneDNB/Tres_me/Tres.kegg')
+parser.add_argument('-S', "--signature_name_file", type=str, required=False, help="Names of the signatures, one name in one line.",
+                    default='/sibcb2/bioinformatics/ImmuneDNB/Tres_me/signature_name_file.txt')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='test')
 args = parser.parse_args()
 
 def profile_geneset_signature(expression, geneset_file, name_file):
@@ -30,16 +33,17 @@ def profile_geneset_signature(expression, geneset_file, name_file):
     fin.close()
 
     # pandas data frame
-    signature = pandas.concat(signature, axis=1, join='outer', sort=False)
-    signature.fillna(0, inplace=True)
+    # 此时signature是每个kegg通路的基因名，行为通路，列为基因
+    signature = pandas.concat(signature, axis=1, join='outer', sort=False) # 将通路的所有基因都作为一列，形成一个基因数*通路数的矩阵
+    signature.fillna(0, inplace=True) # 将通路中不存在的基因的值由nan变成0
     
-    common = expression.index.intersection(signature.index)
-    signature, expression = signature.loc[common], expression.loc[common]
+    common = expression.index.intersection(signature.index) # 求表达矩阵和通路基因共有的基因
+    signature, expression = signature.loc[common], expression.loc[common] # 只取共有的基因
     
-    background = signature.mean(axis=1)
+    background = signature.mean(axis=1) # 求每个基因对所有通路的平均值
     background.name = 'study bias'
     
-    X = signature.loc[:, names].mean(axis=1)
+    X = signature.loc[:, names].mean(axis=1) # 求每个基因对name_file中的通路的平均值
     X.name = 'Proliferation'
     
     X = pandas.concat([background, X], axis=1, join='inner')

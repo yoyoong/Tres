@@ -7,10 +7,13 @@ from scipy import stats
 from statsmodels.stats.multitest import multipletests
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-E', "--expression_file", type=str, default=None, required=False, help="Gene expression file.")
-parser.add_argument('-R', "--response_data", type=str, default=None, required=True, help="Precomputed response data frame.")
-parser.add_argument('-S', "--signaling_data", type=str, default=None, required=True, help="Precomputed signaling data frame.")
-parser.add_argument('-O', "--output_tag", type=str, default=None, required=False, help="Prefix for output files.")
+parser.add_argument('-E', "--expression_file", type=str, required=False, help="Gene expression file.",
+                    default='/sibcb2/bioinformatics/ImmuneDNB/Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
+parser.add_argument('-R', "--response_data", type=str, required=False, help="Precomputed response data frame.",
+                    default='/sibcb2/bioinformatics2/hongyuyang/code/Tres/Tres/Breast.GSE156728.10x_Prolifertion.tsv')
+parser.add_argument('-S', "--signaling_data", type=str, required=False, help="Precomputed signaling data frame.",
+                    default='/sibcb2/bioinformatics2/hongyuyang/code/Tres/Tres/Breast.GSE156728.10x_Signaling.tsv')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='test')
 
 parser.add_argument('-C', "--count_threshold", type=int, default=100, required=False, help="Minimal number of cells needed for regression [100].")
 parser.add_argument('-RK', "--response_key", type=str, default='Proliferation', required=False, help="Name of response in the data table [Proliferation].")
@@ -45,10 +48,11 @@ def interaction_test(expression, X, y):
     
     failed = []
     merge = []
-    
+
+    # 对每个基因分别求Tres分数
     for gid, arr in expression.iterrows():        
-        X.loc[:,'partner'] = arr
-        X.loc[:,'interaction'] = arr * signal
+        X.loc[:,'partner'] = arr # b * G
+        X.loc[:,'interaction'] = arr * signal # c * G * suppression
     
         # other covariates have no sufficient variation
         if arr.std() < err_tol or X.loc[:,'interaction'].std() < err_tol: continue
@@ -127,15 +131,15 @@ for title, expression_sub in expression_group:
     
     # remove rows all zeros
     flag_nonzero = (expression_sub == 0).mean(axis=1) < 1
-    if sum(~flag_nonzero) > 0: expression_sub = expression_sub.loc[flag_nonzero]
+    if sum(~flag_nonzero) > 0:
+        expression_sub = expression_sub.loc[flag_nonzero]
     
     y = (result_response.loc[response_key]).loc[expression_sub.columns]
 
     # regression scaffold
     X = pandas.DataFrame(numpy.zeros((N,4)), columns = ['const', 'pivot', 'partner', 'interaction'], index = expression_sub.columns)
-    X.loc[:, 'const'] = 1
-    
-    X.loc[:,'pivot'] = result_signaling.loc[signaling_key, expression_sub.columns]
+    X.loc[:, 'const'] = 1 # d * 1
+    X.loc[:,'pivot'] = result_signaling.loc[signaling_key, expression_sub.columns] # a * suppression
     result = interaction_test(expression_sub, X, y)
     result.columns += ('.%s.%s' % (title, signaling_key))
     merge.append(result)

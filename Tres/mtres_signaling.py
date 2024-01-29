@@ -5,9 +5,11 @@ import os, sys, pandas, numpy, pathlib
 import CytoSig
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-E', "--expression_file", type=str, default=None, required=True, help="Gene expression file.")
-parser.add_argument('-M', "--model_matrix_file", type=str, default=None, required=True, help="Quantitative signatures for cytokines.")
-parser.add_argument('-O', "--output_tag", type=str, default=None, required=True, help="Prefix for output files.")
+parser.add_argument('-E', "--expression_file", type=str, required=False, help="Gene expression file.",
+                    default='/sibcb2/bioinformatics/ImmuneDNB/Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
+parser.add_argument('-M', "--model_matrix_file", type=str, required=False, help="Quantitative signatures for cytokines.",
+                    default='/sibcb2/bioinformatics/ImmuneDNB/Tres_me/signature.centroid.expand')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='test')
 args = parser.parse_args()
 
 def read_expression(input_file):
