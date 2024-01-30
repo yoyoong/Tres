@@ -8,7 +8,7 @@ from statsmodels.stats.multitest import multipletests
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_file", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics/ImmuneDNB/Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
 parser.add_argument('-R', "--response_data", type=str, required=False, help="Precomputed response data frame.",
                     default='/sibcb2/bioinformatics2/hongyuyang/code/Tres/Tres/Breast.GSE156728.10x_Prolifertion.tsv')
 parser.add_argument('-S', "--signaling_data", type=str, required=False, help="Precomputed signaling data frame.",

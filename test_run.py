@@ -1,4 +1,4 @@
-# python geneset_score.py -E /sibcb2/bioinformatics/ImmuneDNB/Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz -G Tres.kegg -S signature_name_file.txt -O Breast.GSE156728.10x
+# python geneset_score.py -E /sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz -G Tres.kegg -S signature_name_file.txt -O Breast.GSE156728.10x
 
 import argparse
 import time
@@ -27,7 +27,7 @@ def read_expression(input_file):
 	return expression
 
 geneset_file = 'Tres.kegg'
-expression = read_expression('/sibcb2/bioinformatics/ImmuneDNB/Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
+expression = read_expression('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
 result_response = pandas.read_csv('Breast.GSE156728.10x_Prolifertion.tsv', sep='\t', index_col=0)
 result_signaling = pandas.read_csv('Breast.GSE156728.10x_Signaling.tsv', sep='\t', index_col=0)
 

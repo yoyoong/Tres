@@ -6,7 +6,7 @@ import CytoSig
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_file", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics/ImmuneDNB/Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
 parser.add_argument('-G', "--genesets_GMT_file", type=str, required=False, help="Background gene sets in GMT format.",
                     default='/sibcb2/bioinformatics/ImmuneDNB/Tres_me/Tres.kegg')
 parser.add_argument('-S', "--signature_name_file", type=str, required=False, help="Names of the signatures, one name in one line.",

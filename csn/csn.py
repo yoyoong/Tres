@@ -1,0 +1,157 @@
+from scipy.sparse import csr_matrix
+from scipy.stats import norm
+import numpy as np
+import pandas as pd
+import sys, os
+from tqdm.autonotebook import tqdm
+
+def upperlower(data, boxsize):
+    (n1, n2) = data.shape  # n1 gene; n2 sample
+    upper = np.zeros((n1, n2), dtype=np.float32)
+    lower = np.zeros((n1, n2), dtype=np.float32)
+
+    for i in tqdm(range(0, n1), desc="Get upperlower"):
+        s1 = sorted(data[i, :])
+        s2 = data[i, :].argsort()
+        sum = int(np.sum(np.sign(s1)))
+        n3 = n2 - sum
+        h = int(boxsize / 2 * sum + 0.5) # traditional rounding e.g. 2.4->2 2.5->3
+        k = 0
+        while k <= (n2 - 1):
+            s = 0
+            while (k + s + 1 <= (n2 - 1)) and (s1[k + s + 1] == s1[k]):
+                s = s + 1
+            if s >= h:
+                upper[i, s2[k:k + s + 1]] = data[i, s2[k]]
+                lower[i, s2[k:k + s + 1]] = data[i, s2[k]]
+            else:
+                upper[i, s2[k:k + s + 1]] = data[i, s2[min(n2 - 1, k + s + h)]]
+                lower[i, s2[k:k + s + 1]] = data[i, s2[max(n3 * (n3 > h), k - h)]]
+
+            k = k + s + 1
+    return (upper, lower)
+
+def getCSNMatrix(gem: pd.DataFrame, upper: np.array, lower: np.array, index: int, is_weight:float, alpha: float):
+    (n1, n2) = gem.shape
+    eps = np.finfo(float).eps
+    B = np.zeros((n1, n2), dtype=np.float32)
+    for j in range(0, n2):
+        upper_cutoff = (gem[:, j] < upper[:, index]) | (np.isclose(gem[:, j], upper[:, index], rtol=1e-4))
+        lower_cutoff = (gem[:, j] > lower[:, index]) | (np.isclose(gem[:, j], lower[:, index], rtol=1e-4))
+        B[:, j] = upper_cutoff * lower_cutoff
+    a = B.sum(axis=1)
+    a = np.reshape(a, (n1, 1))
+    temp = (B @ B.T * n2 - a @ a.T) / np.sqrt((a @ a.T) * ((n2 - a) @ (n2 - a).T) / (n2 - 1) + eps)
+    # temp[temp < 0] = 0
+    np.fill_diagonal(temp, 0)
+    matrix = csr_matrix(temp).tocoo()
+    matrix = matrix.multiply(matrix > norm.ppf(1 - alpha))  # filter the data
+    if not is_weight:
+        matrix = (matrix > norm.ppf(1 - alpha))
+    return matrix
+
+def getCSNMatrix_csndm(gem: pd.DataFrame, upper: np.array, lower: np.array, index: int, is_weight:float, alpha: float):
+    (n1, n2) = gem.shape
+    eps = np.finfo(float).eps
+    B = np.zeros((n1, n2), dtype=np.float32)
+    for j in range(0, n2):
+        upper_cutoff = (gem[:, j] < upper[:, index]) | (np.isclose(gem[:, j], upper[:, index], rtol=1e-4))
+        lower_cutoff = (gem[:, j] > lower[:, index]) | (np.isclose(gem[:, j], lower[:, index], rtol=1e-4))
+        B[:, j] = upper_cutoff * lower_cutoff * (gem[:, index] > 0)
+    a = B.sum(axis=1)
+    a = np.reshape(a, (n1, 1))
+    temp = (B @ B.T * n2 - a @ a.T) / np.sqrt((a @ a.T) * ((n2 - a) @ (n2 - a).T) / (n2 - 1) + eps)
+    # temp[temp < 0] = 0
+    np.fill_diagonal(temp, 0)
+    matrix = csr_matrix(temp).tocoo()
+    matrix = matrix.multiply(matrix > norm.ppf(1 - alpha))  # filter the data
+    if not is_weight:
+        matrix = (matrix > norm.ppf(1 - alpha))
+    return matrix
+
+def getCSNList(args, input_data1, input_data2):
+    data1, gene1, sample1 = input_data1.values, input_data1.index.values, input_data1.columns.values
+    data2, gene2, sample2 = input_data2.values, input_data2.index.values, input_data2.columns.values
+    gene = list(np.union1d(gene1, gene2)) # merge gene1 and gene2
+    n1, n11, n12, n2 = len(gene), data1.shape[0], data2.shape[0], sample1.shape[0]
+    eps = np.finfo(float).eps
+
+    (upper1, lower1) = upperlower(data1, boxsize=args.boxSize)
+    (upper2, lower2) = upperlower(data2, boxsize=args.boxSize)
+
+    csn_writer = open(args.tag + ".CSN.txt", "w")
+    csn_writer.writelines("gene1\tgene2\tsampleID\tvalue\n")
+
+    ndm = pd.DataFrame(np.zeros((n1, n2)), index=gene, columns=sample1)
+
+    for k in range(0, n2):
+        sampleID = sample1[k]
+        B1 = np.zeros((n11, n2), dtype=np.float32)
+        B2 = np.zeros((n12, n2), dtype=np.float32)
+        for j in range(0, n2):
+            B1[:, j] = (data1[:, j] <= upper1[:, k]) & (data1[:, j] >= lower1[:, k]) & (data1[:, k] > 0)
+            B2[:, j] = (data2[:, j] <= upper2[:, k]) & (data2[:, j] >= lower2[:, k]) & (data2[:, k] > 0)
+        a1 = np.reshape(B1.sum(axis=1), (n11, 1))
+        a2 = np.reshape(B2.sum(axis=1), (n12, 1))
+        temp = (B1 @ B2.T * n2 - a1 @ a2.T) / np.sqrt((a1 @ a2.T) * ((n2 - a1) @ (n2 - a2).T) / (n2 - 1) + eps)
+
+        np.fill_diagonal(temp, 0)
+        matrix = csr_matrix(temp).tocoo()
+        written_overlap_gene = set() # overlap gene(exists in both gene1 and gene2) which has been written
+        for index in zip(matrix.nonzero()[0], matrix.nonzero()[1]):
+            gene1_name = gene1[index[0]]
+            gene2_name = gene2[index[1]]
+            value = temp[index[0]][index[1]]
+            if (gene1_name != gene2_name) and (value > norm.ppf(1 - args.alpha)):
+                if gene2_name in gene1:
+                    if gene2_name not in written_overlap_gene: # overlap gene only write one side
+                        ndm.iloc[gene.index(gene1_name), k] += 1
+                        ndm.iloc[gene.index(gene2_name), k] += 1
+                        csn_writer.writelines(str(gene1_name) + "\t" + str(gene2_name) + "\t" +
+                                              str(sampleID) + "\t" + str(value) + "\n")
+                        written_overlap_gene.add(gene1_name)
+                else:
+                    ndm.iloc[gene.index(gene1_name), k] += 1
+                    ndm.iloc[gene.index(gene2_name), k] += 1
+                    csn_writer.writelines(str(gene1_name) + "\t" + str(gene2_name) + "\t" +
+                                          str(sampleID) + "\t" + str(value) + "\n")
+        print("Sample: " + str(sampleID) + " get csn end!")
+    if args.ndmFlag:
+        ndm.astype(int).to_csv(args.tag + ".NDM.txt", sep='\t')
+    csn_writer.close()
+
+def main(in_args):
+    args = in_args
+    try:
+        basename = os.path.basename(args.inputFile)
+        if basename.find('.pickle') >= 0:
+            input_data = pd.read_pickle(args.inputFile)
+        else:
+            input_data = pd.read_csv(args.inputFile, sep='\t')
+    except:
+        sys.stderr.write('Fail to open h5adData file %s' % args.inputFile)
+        sys.exit(1)
+
+    if args.sampleID is not None:
+        input_sampleID = []
+        with open(args.sampleID, 'r') as f:
+            for item in f.readlines():
+                input_sampleID.append(item.strip())
+        input_data = input_data.loc[:, input_sampleID]
+
+    if args.gene1 is not None and args.gene2 is not None:
+        input_gene1 = []
+        with open(args.gene1, 'r') as f:
+            for item in f.readlines():
+                input_gene1.append(item.strip())
+        input_data1 = input_data.loc[input_gene1, :]
+
+        input_gene2 = []
+        with open(args.gene2, 'r') as f:
+            for item in f.readlines():
+                input_gene2.append(item.strip())
+        input_data2 = input_data.loc[input_gene2, :]
+
+        getCSNList(args, input_data1, input_data2)
+    else:
+        getCSNList(args, input_data, input_data)
