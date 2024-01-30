@@ -9,20 +9,8 @@ import pandas as pd
 from tqdm.autonotebook import tqdm
 sys.path.append('/sibcb2/bioinformatics2/hongyuyang/code/Tres')
 from Util import read_expression
-from csn_torch import upperlower, getCSNMatrix_csndm
+from csn_torch import upperlower, getCSNMatrix
 import torch
-
-
-# mat1 = torch.tensor([[1, 2, 3],
-#                      [4, 5, 6],
-#                      [7, 8, 9]], dtype=torch.float32)
-# mat2 = torch.tensor([[1, 2, 3],
-#                      [4, 5, 6],
-#                      [7, 8, 9]], dtype=torch.float32)
-# ddd = torch.mm(mat1, mat2)
-# fff = mat1 @ mat2
-# hhh = mat1 @ mat2.t()
-# ggg = mat1 @ mat2.T
 
 
 # Argument parser
@@ -58,12 +46,17 @@ csn_info = f'boxsize{boxsize_str}_alpha{alpha_str}'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f'Using device: {device}')
-gem_tensor = torch.tensor(gem, dtype=torch.float32).to(device)
-(upper, lower) = upperlower(gem_tensor, boxsize=boxsize, device=device)
+if device == 'cuda':
+    print("当前系统上的GPU设备数量为：", torch.cuda.device_count())
+
+(upper, lower) = upperlower(gem, boxsize=boxsize)
+gem_tensor = torch.as_tensor(gem, dtype=torch.float32).to(device)
+upper_tensor = torch.as_tensor(upper, dtype=torch.float32).to(device)
+lower_tensor = torch.as_tensor(lower, dtype=torch.float32).to(device)
 ndm = np.zeros((gene_num, cell_num), dtype=int)
 total_edge_num = 0
 for cell in tqdm(range(cell_num), desc="Get CSNDM"):
-    adj_sparse = getCSNMatrix_csndm(gem_tensor, upper, lower, cell, is_weight=False, alpha=alpha, device=device)
+    adj_sparse = getCSNMatrix(gem_tensor, upper_tensor, lower_tensor, cell, is_weight=False, has_zero=False, alpha=alpha, device=device)
     adj_array = adj_sparse.toarray()
     ndm[:, cell] = np.sum(adj_array, axis=0)
     total_edge_num += np.sum(ndm[:, cell])
