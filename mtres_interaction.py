@@ -1,47 +1,36 @@
 import argparse
-import time
-import resource
-import os, sys, pandas, numpy, pathlib
+import numpy
+import os
+import pandas
+import sys
+import warnings
+
 import CytoSig
-from scipy import stats
 from statsmodels.stats.multitest import multipletests
+
+from Util import read_expression
+
+warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_file", type=str, required=False, help="Gene expression file.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
 parser.add_argument('-R', "--response_data", type=str, required=False, help="Precomputed response data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/code/Tres/Tres/Breast.GSE156728.10x_Prolifertion.tsv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.qc_data/Prolifertion/Breast.GSE156728.10x.Prolifertion.csv')
 parser.add_argument('-S', "--signaling_data", type=str, required=False, help="Precomputed signaling data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/code/Tres/Tres/Breast.GSE156728.10x_Signaling.tsv')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='test')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.qc_data/Signaling/Breast.GSE156728.10x.Signaling.csv')
+parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.qc_data/qc_result')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Breast.GSE156728.10x')
 
 parser.add_argument('-C', "--count_threshold", type=int, default=100, required=False, help="Minimal number of cells needed for regression [100].")
 parser.add_argument('-RK', "--response_key", type=str, default='Proliferation', required=False, help="Name of response in the data table [Proliferation].")
-parser.add_argument('-SK', "--signaling_key", type=str, default='TGFB1', required=False, help="Name of signaling in the data table [TGFB1].")
+parser.add_argument('-SK', "--signaling_key", type=str, default='TGFB1', required=False,
+                    help="Name of signaling in the data table [TGFB1].") # if null, calculate all cytokine
 parser.add_argument("-QC", "--run_qc", help="whether run QC workflow", action="store_true")
 args = parser.parse_args()
 
 err_tol = 1e-8
-
-def read_expression(input_file):
-    # read input
-    try:
-        f = os.path.basename(input_file)
-        if f.find('.pickle') >= 0:
-            print(f)
-            expression = pandas.read_pickle(input_file)
-        else:
-            expression = pandas.read_csv(input_file, sep='\t', index_col=0)
-    except:
-        sys.stderr.write('Fail to open input file %s\n' % input_file)
-        sys.exit(1)
-    
-    # gene and sample names must be unique
-    assert expression.index.value_counts().max() == 1
-    assert expression.columns.value_counts().max() == 1
-    
-    print('input matrix dimension', expression.shape)
-    return expression
 
 def interaction_test(expression, X, y):
     signal = X.loc[:, 'pivot']
@@ -117,9 +106,10 @@ if args.run_qc:
         tvalue = result[2].loc['pivot'].iloc[0]
         pvalue = result[3].loc['pivot'].iloc[0]
         report.append(pandas.Series([tvalue, pvalue], index=['t', 'p'], name=title))
-    
+
     report = pandas.concat(report, axis=1, join='inner').transpose()
-    report.to_csv(args.output_tag + '_qc.tsv', sep='\t', index_label='ID')
+    report_filename = os.path.join(args.output_file_directory, f'{args.output_tag}.qc.csv')
+    report.to_csv(report_filename, sep='\t', index_label='ID')
     sys.exit(1)
 
 merge = []
@@ -145,4 +135,6 @@ for title, expression_sub in expression_group:
     merge.append(result)
 
 result = pandas.concat(merge, axis=1, join='outer')
-result.to_csv(args.output_tag + '_res.tsv', sep='\t', index_label='ID')
+result_filename = os.path.join(args.output_file_directory, f'{args.output_tag}.tres.csv')
+result.to_csv(result_filename, sep='\t', index_label='ID')
+print("Process end!")

@@ -50,8 +50,10 @@ def getCSNMatrix(gem: Tensor, upper: Tensor, lower: Tensor,
         else:
             B[:, j] = upper_cutoff * lower_cutoff * (gem[:, index] > 0)
     a = B.sum(axis=1)
+    a_numpy = a.cpu().detach().numpy()
     a = torch.reshape(a, (n1, 1))
     temp = (torch.mm(B, B.T) * n2 - torch.mm(a, a.T)) / torch.sqrt(torch.mm(a, a.T) * torch.mm((n2 - a), (n2 - a).T) / (n2 - 1) + eps)
+    temp_numpy = temp.cpu().detach().numpy()
     # temp[temp < 0] = 0
     temp.fill_diagonal_(0)
     matrix = csr_matrix(temp.cpu().detach().numpy()).tocoo()

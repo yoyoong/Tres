@@ -20,15 +20,15 @@ parser.add_argument('-E', "--expression_file", type=str, required=False, help="G
 parser.add_argument('-B', '--boxsize', type=float, required=False, help='boxsize', default=0.1)
 parser.add_argument('-A', '--alpha', type=float, required=False, help='alpha', default=0.01)
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.ndm_data')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.")
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/Breast/GSE156728')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Breast.GSE156728')
 args = parser.parse_args()
 
 expression_file = args.expression_file
 boxsize = args.boxsize
 alpha = args.alpha
 output_tag = args.output_tag if args.output_tag is not None else os.path.splitext(os.path.basename(expression_file))[0]
-ndm_filename = os.path.join(args.output_file_directory, f'{output_tag}_NDM.csv')
+ndm_filename = os.path.join(args.output_file_directory, f'{output_tag}.NDM.csv')
 
 # get gem data
 gem_df = read_expression(expression_file)
@@ -51,6 +51,7 @@ if device == 'cuda':
 
 (upper, lower) = upperlower(gem, boxsize=boxsize)
 gem_tensor = torch.as_tensor(gem, dtype=torch.float32).to(device)
+
 upper_tensor = torch.as_tensor(upper, dtype=torch.float32).to(device)
 lower_tensor = torch.as_tensor(lower, dtype=torch.float32).to(device)
 ndm = np.zeros((gene_num, cell_num), dtype=int)
@@ -62,6 +63,6 @@ for cell in tqdm(range(cell_num), desc="Get CSNDM"):
     total_edge_num += np.sum(ndm[:, cell])
 
 ndm_df = pd.DataFrame(ndm, index=gene_list, columns=cell_list)
-ndm_df.to_csv(ndm_filename)
+ndm_df.to_csv(ndm_filename, sep='\t')
 print(f"Sample {output_tag} get csn end!")
 
