@@ -13,7 +13,7 @@ from Util import read_expression
 warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-E', "--expression_file", type=str, required=False, help="Gene expression file.",
+parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
 parser.add_argument('-R', "--response_data", type=str, required=False, help="Precomputed response data frame.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.qc_data/Prolifertion/Breast.GSE156728.10x.Prolifertion.csv')
@@ -78,7 +78,7 @@ result_signaling = pandas.read_csv(args.signaling_data, sep='\t', index_col=0)
 if signaling_key not in result_signaling.index:
 	sys.stderr.write('Fail to find %s row in file %s.\n' % (signaling_key, args.signaling_data))
 
-expression = read_expression(args.expression_file)
+expression = read_expression(args.expression_path)
 
 # check column names
 if not result_response.columns.equals(result_signaling.columns):
@@ -86,7 +86,7 @@ if not result_response.columns.equals(result_signaling.columns):
     sys.exit(1)
 
 if not result_response.columns.equals(expression.columns):
-    print('%s and %s have different column names.\n' % (args.response_data, args.expression_file))
+    print('%s and %s have different column names.\n' % (args.response_data, args.expression_path))
     sys.exit(1)
 
 
