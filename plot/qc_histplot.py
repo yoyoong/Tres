@@ -42,6 +42,6 @@ histplot.set_yticklabels(histplot.get_yticks(), size = 15)
 # sns.stripplot(x="Cytokine", y="t", data=qc_result_data, color='b', size=1, ax=axes[1])
 
 figure = fig.get_figure()
-figure_filename = os.path.join(output_file_directory, f'{celltype}.pdf')
+figure_filename = os.path.join(output_file_directory, f'{celltype}.hisplot.pdf')
 figure.savefig(figure_filename, dpi=100)
 figure.show()
