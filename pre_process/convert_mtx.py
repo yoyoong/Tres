@@ -5,6 +5,7 @@ import pandas as pd
 import h5py
 import scanpy as sc
 from scipy.sparse import coo_matrix
+from tqdm.autonotebook import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-I', "--input", type=str, required=False, help="input file path",
@@ -72,51 +73,40 @@ if input_path.endswith('.h5'):
             lambda x: generate_cellname(x['Cell'], x['Celltype (major-lineage)']), axis=1)
     cellname_list = list(CellMetainfo_df['cellname'])
 
-    MAX_CELL_PER_FILE = 100
-    if len(indptr) <= MAX_CELL_PER_FILE:
-        # convert to dense matrix
-        row = indices
-        col = np.zeros_like(indices)
-        for index in range(1, len(indptr)):
+    # convert to dense matrix
+    row = indices
+    col = np.zeros_like(indices)
+    for index in range(1, len(indptr)):
+        if index + 1 < len(indptr):
             col[indptr[index]:indptr[index + 1]] = index
-        data = coo_matrix((data_raw, (row, col)), shape=tuple(shape)).toarray()
+        else:
+            col[indptr[index]:] = index
+    data = coo_matrix((data_raw, (row, col)), shape=tuple(shape)).toarray()
 
-        # centralize
-        row_means = np.mean(data, axis=1)
-        gem_data = data - row_means[:, np.newaxis]
+    # centralize
+    row_means = np.mean(data, axis=1)
+    gem_data = data - row_means[:, np.newaxis]
+    gem_df = pd.DataFrame(data=gem_data, index=genename_list, columns=cellname_list)
 
+    MAX_CELL_PER_FILE = 100000
+    if len(indptr) <= MAX_CELL_PER_FILE:
         gem_path = os.path.join(output_file_directory, f'{output_tag}.csv')
-        gem_df = pd.DataFrame(data=gem_data, index=genename_list, columns=cellname_list)
         gem_df.to_csv(gem_path)
-    else: # one file per 100,000 lines
+    else: # one celltype a file
         gem_dir = os.path.join(output_file_directory, output_tag)
         if not os.path.exists(gem_dir):
             os.makedirs(gem_dir)
-        file_num = len(indptr) // MAX_CELL_PER_FILE if len(indptr) % MAX_CELL_PER_FILE == 0 else (len(indptr) // MAX_CELL_PER_FILE + 1)
-        for i in range(file_num):
-            start_index = i * MAX_CELL_PER_FILE
-            end_index = min(len(indptr) - 1, (i + 1) * MAX_CELL_PER_FILE)
+        else:
+            file_list = os.listdir(gem_dir)
+            for file in file_list:
+                file_path = os.path.join(gem_dir, file)
+                os.remove(file_path)
 
-            # convert to dense matrix
-            row = indices[indptr[start_index]:indptr[end_index]]
-            col = np.zeros(indptr[end_index] - indptr[start_index])
-            for index in range(start_index + 1, end_index):
-                col[indptr[index]:indptr[index + 1]] = index
-                # if index < end_index:
-                #     col[indptr[index]:indptr[index + 1]] = index
-                # else:
-                #     col[indptr[index]:] = index
-            data_raw_split = data_raw[indptr[start_index]:indptr[end_index]]
-            data = coo_matrix((data_raw_split, (row, col)), shape=(shape[0], end_index - start_index)).toarray()
-
-            # centralize
-            row_means = np.mean(data, axis=1)
-            gem_data = data - row_means[:, np.newaxis]
-
-            gem_path = os.path.join(gem_dir, f'{output_tag}_{str(i + 1)}.csv')
-            cellname_list_split = cellname_list[start_index:end_index]
-            gem_df = pd.DataFrame(data=gem_data, index=genename_list, columns=cellname_list_split)
-            gem_df.to_csv(gem_path)
-            print(f"{output_tag}_{str(i + 1)} convert end.")
+        flag_group = [v.split('.')[0] for v in gem_df.columns]
+        gem_group = gem_df.groupby(flag_group, axis=1)
+        for celltype, gem_sub in tqdm(gem_group, desc="Celltype process"):
+            celltype = celltype.replace("/", "_")
+            gem_sub_path = os.path.join(gem_dir, f'{output_tag}.{celltype}.csv')
+            gem_sub.to_csv(gem_sub_path)
 
 print(f"{output_tag} convert end")

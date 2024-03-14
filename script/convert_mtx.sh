@@ -1,7 +1,6 @@
 h5_list=$(find /sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/0.raw_data -name "*.h5")
-h5_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/0.raw_data/BRCA_GSE161529_expression.h5
-h5_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/0.raw_data/NSCLC_GSE176021_aPD1_expression.h5
-for h5_path in ${h5_list}
+h5_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/0.raw_data/CRC_GSE136394_expression.h5
+for h5_path in ${h5_list[@]}
 do
   h5_filename=$(basename "${h5_path}")
   h5_tag=$(echo "${h5_filename}" | sed 's/_expression.h5//g')
@@ -12,7 +11,7 @@ do
 
   rm /sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch2_data/convert_mtx/${h5_tag}.log
   echo "python3 /sibcb2/bioinformatics2/hongyuyang/code/Tres/pre_process/convert_mtx.py -I ${h5_path} -CTR ${celltype_mapping_rules_file} -D ${output_file_directory} -O ${h5_tag}" | \
-    qsub -q b1.q@fnode006.sibcb.ac.cn -N ${h5_tag} -V -cwd -o /sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch2_data/convert_mtx/${h5_tag}.log -j y
+    qsub -q b1.q@fnode005.sibcb.ac.cn -N ${h5_tag} -V -cwd -o /sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch2_data/convert_mtx/${h5_tag}.log -j y
 done
 
 input=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/BRCA_GSE161529.csv

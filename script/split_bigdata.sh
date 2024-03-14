@@ -26,3 +26,38 @@ for (( i=0; i<num_files; i++ )); do
 
     echo "${i} Processing end."
 done
+
+
+
+# 输入CSV文件名
+input_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/NSCLC_GSE127471.csv
+output_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/NSCLC_GSE127471
+# 读取列名
+header=$(head -n 1 "$input_file")
+# 以逗号为分隔符将列名分割成数组
+IFS=',' read -r -a header_list <<< "$header"
+
+# 遍历列名
+i=2
+for column in "${header_list[@]}"; do
+    # 提取第一个.之前的字段作为分组依据
+    group_field=$(echo ${column} | cut -d '.' -f 1)
+
+    # 判断是否已经创建了该分组文件，若未创建则创建新文件并写入第一列
+    group_output_file="${output_directory}/${group_field}.csv"
+    if [ ! -e ${group_output_file} ]; then
+        cut -d ',' -f 1 ${input_file} >> ${group_output_file}
+    fi
+
+    # 写入当前列数据到对应分组文件
+    column_data=$(awk -F ',' -v col="$i" '{print ","$col}' ${input_file} | tail -n +2)
+    awk -F ',' -v col="$i" '{print $col}' ${input_file} | tail -n +2 >> ${group_output_file}
+    awk -F ',' -v col="$i" '{print $col}' ${input_file} | tail -n +2 | paste -d ',' ${group_output_file} - > ${group_output_file}
+
+    pipe=$(mktemp -u)
+    mkfifo ${pipe}
+    echo ${column_data} > ${pipe} &
+
+    paste -d ',' ${pipe} ${group_output_file} > ${group_output_file}
+    i=$((i + 1))
+done

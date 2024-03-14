@@ -1,9 +1,10 @@
 import argparse
 import numpy
 import os
-import pandas
+import pandas as pd
 import sys
 import warnings
+from tqdm.autonotebook import tqdm
 
 import CytoSig
 from statsmodels.stats.multitest import multipletests
@@ -14,127 +15,142 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.Tres_data/sc_cohorts/Breast.GSE156728.10x.pickle.gz')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/HNSC_GSE139324')
 parser.add_argument('-R', "--response_data", type=str, required=False, help="Precomputed response data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.qc_data/Prolifertion/Breast.GSE156728.10x.Prolifertion.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-1.Prolifertion/NSCLC_GSE127471.csv')
 parser.add_argument('-S', "--signaling_data", type=str, required=False, help="Precomputed signaling data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.qc_data/Signaling/Breast.GSE156728.10x.Signaling.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-2.Signaling/NSCLC_GSE127471.csv')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.qc_data/qc_result')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Breast.GSE156728.10x')
-
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='NSCLC_GSE127471')
 parser.add_argument('-C', "--count_threshold", type=int, default=100, required=False, help="Minimal number of cells needed for regression [100].")
 parser.add_argument('-RK', "--response_key", type=str, default='Proliferation', required=False, help="Name of response in the data table [Proliferation].")
-parser.add_argument('-SK', "--signaling_key", type=str, default='TGFB1', required=False,
-                    help="Name of signaling in the data table [TGFB1].") # if null, calculate all cytokine
-parser.add_argument("-QC", "--run_qc", help="whether run QC workflow", action="store_true")
+parser.add_argument('-SK', "--signaling_key", type=str, default='', required=False, help="Name of signaling in the data") # if null, calculate all cytokine
+parser.add_argument('-CT', "--celltype", type=str, default='CD8T', required=False, help="cell type")
 args = parser.parse_args()
 
-err_tol = 1e-8
+expression_path = args.expression_path
+response_data = args.response_data
+signaling_data = args.signaling_data
+output_file_directory = args.output_file_directory
+output_tag = args.output_tag
+count_threshold = args.count_threshold
+response_key = args.response_key
+signaling_key = args.signaling_key
+celltype = args.celltype
 
+err_tol = 1e-8
 def interaction_test(expression, X, y):
     signal = X.loc[:, 'pivot']
-    
     failed = []
     merge = []
 
     # 对每个基因分别求Tres分数
-    for gid, arr in expression.iterrows():        
-        X.loc[:,'partner'] = arr # b * G
-        X.loc[:,'interaction'] = arr * signal # c * G * suppression
-    
+    for gid, arr in expression.iterrows():
+        X.loc[:, 'partner'] = arr  # b * G
+        X.loc[:, 'interaction'] = arr * signal  # c * G * suppression
+
         # other covariates have no sufficient variation
-        if arr.std() < err_tol or X.loc[:,'interaction'].std() < err_tol: continue
-        
+        if arr.std() < err_tol or X.loc[:, 'interaction'].std() < err_tol: continue
+
         try:
-            y = pandas.DataFrame(y)
-            result = CytoSig.ridge_significance_test(X, y, alpha=0, alternative="two-sided", nrand=0, flag_normalize=False, verbose=False)
-        
-        except ArithmeticError:
+            y = pd.DataFrame(y)
+            result = CytoSig.ridge_significance_test(X, y, alpha=0, alternative="two-sided", nrand=0,
+                                                     flag_normalize=False, verbose=False)
+
+        except ArithmeticError as e:
+            # print(f"{gid} ArithmeticError:", str(e))
             failed.append(gid)
             continue
-        
+
         tvalue = result[2].loc['interaction'].iloc[0]
         pvalue = result[3].loc['interaction'].iloc[0]
-        
-        merge.append(pandas.Series([tvalue, pvalue], index=['t', 'p'], name=gid))    
-    
-    result = pandas.concat(merge, axis=1, join='inner').transpose()
-    result['q'] = multipletests(result['p'], method='fdr_bh')[1]
-    
-    return result
+        merge.append(pd.Series([tvalue, pvalue], index=['t', 'p'], name=gid))
 
+    if len(merge) > 0:
+        result = pd.concat(merge, axis=1, join='inner').transpose()
+        result['q'] = multipletests(result['p'], method='fdr_bh')[1]
+        return result
+    else:
+        return None
 
-# read response data frame
-response_key = args.response_key
-signaling_key = args.signaling_key
-
-result_response = pandas.read_csv(args.response_data, sep='\t', index_col=0)
+result_response = pd.read_csv(response_data, sep='\t', index_col=0)
 if response_key not in result_response.index:
-	sys.stderr.write('Fail to find %s row in file %s.\n' % (response_key, args.response_data))
+    sys.stderr.write('Fail to find %s row in file %s.\n' % (response_key, response_data))
 
-# read signaling data frame
-result_signaling = pandas.read_csv(args.signaling_data, sep='\t', index_col=0)
-if signaling_key not in result_signaling.index:
-	sys.stderr.write('Fail to find %s row in file %s.\n' % (signaling_key, args.signaling_data))
-
-expression = read_expression(args.expression_path)
-
-# check column names
+result_signaling = pd.read_csv(signaling_data, sep='\t', index_col=0)
+signaling_list = []
+if not signaling_key:
+    signaling_list = list(result_signaling.index)
+else:
+    if signaling_key not in result_signaling.index:
+	    sys.stderr.write('Fail to find %s row in file %s.\n' % (signaling_key, signaling_data))
+    signaling_list.append(signaling_key)
 if not result_response.columns.equals(result_signaling.columns):
-    print('%s and %s have different column names.\n' % (args.response_data, args.signaling_data))
+    print('%s and %s have different column names.\n' % (response_data, signaling_data))
     sys.exit(1)
 
-if not result_response.columns.equals(expression.columns):
-    print('%s and %s have different column names.\n' % (args.response_data, args.expression_path))
-    sys.exit(1)
+if not os.path.isdir(expression_path):
+    expression = read_expression(expression_path)
+    if not result_response.columns.equals(expression.columns):
+        print('%s and %s have different column names.\n' % (response_data, expression_path))
+        sys.exit(1)
 
+    celltype_list = [v.split('.')[0] for v in expression.columns]
+    if celltype not in celltype_list:
+        print(f"This dataset has not {celltype} celltype.")
+        sys.exit(1)
 
-flag_group = ['.'.join(v.split('.')[:2]) for v in expression.columns]
-expression_group = expression.groupby(flag_group, axis=1)
+    flag_group_filtered = [v for v in expression.columns if v.split('.')[0] == celltype]
+    expression_filtered = expression[flag_group_filtered]
+else:
+    expression_list = os.listdir(expression_path)
+    celltype_list = [os.path.basename(v).split('.')[1] for v in expression_list]
+    if celltype not in celltype_list:
+        print(f"This dataset has not {celltype} celltype.")
+        sys.exit(1)
 
-report = []
-if args.run_qc:
-    for title, expression_sub in expression_group:
-        N = expression_sub.shape[1]
-        print('process', title, N)
-        y = (result_response.loc[response_key]).loc[expression_sub.columns]
-        y = y.to_frame(name=None)
-        X = pandas.DataFrame(numpy.zeros((N,1)), columns = ['pivot'], index = expression_sub.columns)
-        X.loc[:,'pivot'] = result_signaling.loc[signaling_key, expression_sub.columns]
-        result = CytoSig.ridge_significance_test(X, y, alpha=10000, alternative="two-sided", nrand=1000, verbose=1)
-        tvalue = result[2].loc['pivot'].iloc[0]
-        pvalue = result[3].loc['pivot'].iloc[0]
-        report.append(pandas.Series([tvalue, pvalue], index=['t', 'p'], name=title))
+    tag = expression_path.split('/')[-1]
+    expression_filtered = pd.read_csv(os.path.join(expression_path, f'{tag}.{celltype}.csv'))
 
-    report = pandas.concat(report, axis=1, join='inner').transpose()
-    report_filename = os.path.join(args.output_file_directory, f'{args.output_tag}.qc.csv')
-    report.to_csv(report_filename, sep='\t', index_label='ID')
-    sys.exit(1)
+flag_group = ['.'.join(v.split('.')[:2]) for v in expression_filtered.columns]
+expression_group = expression_filtered.groupby(flag_group, axis=1)
+result_all = pd.DataFrame(columns=['GeneID', 'Cytokine', 'SampleID', 't', 'p', 'q'])
+for sample, expression_sub in tqdm(expression_group, desc="Sample processing"):
+    # filter the cell type
+    sample_celltype = sample.split(".")[0]
+    if sample_celltype != celltype: continue
 
-merge = []
-for title, expression_sub in expression_group:
+    # filter the cell count
     N = expression_sub.shape[1]
-    if N < args.count_threshold: continue
-    
-    print('process', title, N)
-    
+    if N < count_threshold:
+        print(f"Sample:{sample} cell number is {N}, less than {count_threshold}.")
+        continue
+
     # remove rows all zeros
     flag_nonzero = (expression_sub == 0).mean(axis=1) < 1
     if sum(~flag_nonzero) > 0:
         expression_sub = expression_sub.loc[flag_nonzero]
-    
     y = (result_response.loc[response_key]).loc[expression_sub.columns]
 
-    # regression scaffold
-    X = pandas.DataFrame(numpy.zeros((N,4)), columns = ['const', 'pivot', 'partner', 'interaction'], index = expression_sub.columns)
-    X.loc[:, 'const'] = 1 # d * 1
-    X.loc[:,'pivot'] = result_signaling.loc[signaling_key, expression_sub.columns] # a * suppression
-    result = interaction_test(expression_sub, X, y)
-    result.columns += ('.%s.%s' % (title, signaling_key))
-    merge.append(result)
+    for signaling_name in signaling_list:
+        # regression scaffold
+        X = pd.DataFrame(numpy.zeros((N, 4)), columns = ['const', 'pivot', 'partner', 'interaction'], index = expression_sub.columns)
+        X.loc[:, 'const'] = 1 # d * 1
+        X.loc[:, 'pivot'] = result_signaling.loc[signaling_name, expression_sub.columns] # a * suppression
+        result_sub = interaction_test(expression_sub, X, y)
+        if result_sub is not None:
+            result_sub['GeneID'] = result_sub.index
+            result_sub['Cytokine'] = signaling_name
+            result_sub['SampleID'] = sample
+            result_all = pd.concat([result_all, result_sub], ignore_index=True)
+            print(f"Signal: {signaling_name}, Sample: {sample} calculate end.")
+        else:
+            print(f"Sample: {sample}, Signal: {signaling_name} no result.")
 
-result = pandas.concat(merge, axis=1, join='outer')
-result_filename = os.path.join(args.output_file_directory, f'{args.output_tag}.tres.csv')
-result.to_csv(result_filename, sep='\t', index_label='ID')
+if result_all.shape[0] > 0:
+    result_all.set_index(['Cytokine', 'GeneID', 'SampleID'], inplace=True)
+    result_all.sort_values(['Cytokine', 'GeneID', 'SampleID'], inplace=True)
+    result_filename = os.path.join(output_file_directory, f'{output_tag}.{celltype}.csv')
+    result_all.to_csv(result_filename)
 print("Process end!")

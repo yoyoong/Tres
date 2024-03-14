@@ -1,6 +1,6 @@
 expression_list=$(find /sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data -name "*.csv")
-expression_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/NSCLC_GSE176021_aPD1
-expression_tag=NSCLC_GSE176021_aPD1
+# expression_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/NSCLC_GSE176021_aPD1
+# expression_tag=NSCLC_GSE176021_aPD1
 
 # compute signaling
 for expression_path in ${expression_list[*]}
