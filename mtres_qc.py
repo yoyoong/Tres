@@ -64,9 +64,9 @@ for expression_file in expression_list:
 
     # check data
     if response_key not in response_data.index:
-        sys.stderr.write('Fail to find %s row in file %s.\n' % (response_key, response_file))
+        sys.stderr.write('Fail to find %s row in file %s.\n' % (response_key, response_filename))
     if not response_data.columns.equals(signaling_data.columns):
-        print('%s and %s have different column names.\n' % (response_file, signaling_file))
+        print('%s and %s have different column names.\n' % (response_filename, signaling_filename))
         continue
     # if not response_data.columns.equals(expression_data.columns):
     #     print('%s and %s have different column names.\n' % (response_file, args.expression_file))
@@ -101,7 +101,7 @@ for expression_file in expression_list:
             new_row = {'Dataset': dataset_tag, 'SampleID': title, 'Cytokine': signaling_key, 't': tvalue, 'p': pvalue}
             qc_result.loc[len(qc_result)] = new_row
 
-    print(f"{dataset_tag} process end.")
+    print(f"{dataset_tag} data_process end.")
 
 qc_result_filename = os.path.join(output_file_directory, f'{celltype}.qc_result.csv')
 qc_result.to_csv(qc_result_filename, sep='\t')

@@ -104,7 +104,7 @@ if input_path.endswith('.h5'):
 
         flag_group = [v.split('.')[0] for v in gem_df.columns]
         gem_group = gem_df.groupby(flag_group, axis=1)
-        for celltype, gem_sub in tqdm(gem_group, desc="Celltype process"):
+        for celltype, gem_sub in tqdm(gem_group, desc="Celltype data_process"):
             celltype = celltype.replace("/", "_")
             gem_sub_path = os.path.join(gem_dir, f'{output_tag}.{celltype}.csv')
             gem_sub.to_csv(gem_sub_path)

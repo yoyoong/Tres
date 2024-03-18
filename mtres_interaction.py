@@ -15,14 +15,14 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/HNSC_GSE139324')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/UVM_GSE139829')
 parser.add_argument('-R', "--response_data", type=str, required=False, help="Precomputed response data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-1.Prolifertion/NSCLC_GSE127471.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-1.Prolifertion/UVM_GSE139829.csv')
 parser.add_argument('-S', "--signaling_data", type=str, required=False, help="Precomputed signaling data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-2.Signaling/NSCLC_GSE127471.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-2.Signaling/UVM_GSE139829.csv')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='NSCLC_GSE127471')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='HNSC_GSE139324')
 parser.add_argument('-C', "--count_threshold", type=int, default=100, required=False, help="Minimal number of cells needed for regression [100].")
 parser.add_argument('-RK', "--response_key", type=str, default='Proliferation', required=False, help="Name of response in the data table [Proliferation].")
 parser.add_argument('-SK', "--signaling_key", type=str, default='', required=False, help="Name of signaling in the data") # if null, calculate all cytokine
@@ -111,7 +111,7 @@ else:
         sys.exit(1)
 
     tag = expression_path.split('/')[-1]
-    expression_filtered = pd.read_csv(os.path.join(expression_path, f'{tag}.{celltype}.csv'))
+    expression_filtered = pd.read_csv(os.path.join(expression_path, f'{tag}.{celltype}.csv'), index_col=0)
 
 flag_group = ['.'.join(v.split('.')[:2]) for v in expression_filtered.columns]
 expression_group = expression_filtered.groupby(flag_group, axis=1)
