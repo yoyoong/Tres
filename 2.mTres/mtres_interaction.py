@@ -15,14 +15,16 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/UVM_GSE139829')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/1.gem_data/Breast.GSE176078.10x.pickle.gz')
 parser.add_argument('-R', "--response_data", type=str, required=False, help="Precomputed response data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-1.Prolifertion/UVM_GSE139829.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/2-1.Prolifertion/Breast.GSE176078.10x.csv')
 parser.add_argument('-S', "--signaling_data", type=str, required=False, help="Precomputed signaling data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-2.Signaling/UVM_GSE139829.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/2-2.Signaling/Breast.GSE176078.10x.csv')
+parser.add_argument('-CTR', "--celltype_mapping_rules_file", type=str, required=False, help="Celltype mapping rules file, .txt format",
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cohort_tumor_Tcell.txt')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='HNSC_GSE139324')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/4.Interaction')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Breast.GSE176078.10x')
 parser.add_argument('-C', "--count_threshold", type=int, default=100, required=False, help="Minimal number of cells needed for regression [100].")
 parser.add_argument('-RK', "--response_key", type=str, default='Proliferation', required=False, help="Name of response in the data table [Proliferation].")
 parser.add_argument('-SK', "--signaling_key", type=str, default='', required=False, help="Name of signaling in the data") # if null, calculate all cytokine
@@ -32,6 +34,7 @@ args = parser.parse_args()
 expression_path = args.expression_path
 response_data = args.response_data
 signaling_data = args.signaling_data
+celltype_mapping_rules_file = args.celltype_mapping_rules_file
 output_file_directory = args.output_file_directory
 output_tag = args.output_tag
 count_threshold = args.count_threshold
@@ -96,12 +99,19 @@ if not os.path.isdir(expression_path):
         print('%s and %s have different column names.\n' % (response_data, expression_path))
         sys.exit(1)
 
-    celltype_list = [v.split('.')[0] for v in expression.columns]
-    if celltype not in celltype_list:
-        print(f"This dataset has not {celltype} celltype.")
-        sys.exit(1)
-
-    flag_group_filtered = [v for v in expression.columns if v.split('.')[0] == celltype]
+    if celltype_mapping_rules_file:
+        celltype_mapping_rules_df = pd.read_csv(celltype_mapping_rules_file, sep='\t', index_col=1)
+        celltype_real = celltype_mapping_rules_df.loc[os.path.basename(expression_path)]['FILE_CELLTYPE']
+        if isinstance(celltype_real, str):
+            flag_group_filtered = [v for v in expression.columns if v.split('.')[0] == celltype_real]
+        else:
+            flag_group_filtered = [v for v in expression.columns if v.split('.')[0] in list(celltype_real)]
+    else:
+        celltype_list = [v.split('.')[0] for v in expression.columns]
+        if celltype not in celltype_list:
+            print(f"This dataset has not {celltype} celltype.")
+            sys.exit(1)
+        flag_group_filtered = [v for v in expression.columns if v.split('.')[0] == celltype]
     expression_filtered = expression[flag_group_filtered]
 else:
     expression_list = os.listdir(expression_path)
@@ -119,7 +129,13 @@ result_all = pd.DataFrame(columns=['GeneID', 'Cytokine', 'SampleID', 't', 'p', '
 for sample, expression_sub in tqdm(expression_group, desc="Sample processing"):
     # filter the cell type
     sample_celltype = sample.split(".")[0]
-    if sample_celltype != celltype: continue
+    if celltype_mapping_rules_file:
+        if isinstance(celltype_real, str):
+            if sample_celltype != celltype_real: continue
+        else:
+            if sample_celltype not in list(celltype_real): continue
+    else:
+        if sample_celltype != celltype: continue
 
     # filter the cell count
     N = expression_sub.shape[1]

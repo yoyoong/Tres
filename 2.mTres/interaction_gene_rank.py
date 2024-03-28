@@ -15,7 +15,7 @@ parser.add_argument('-D', "--output_file_directory", type=str, required=False, h
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Gene_rank')
 parser.add_argument('-C', "--cytokine_info", type=str, required=False, help="Name of signaling, str or .txt file"
-                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/cytokine_info.txt') # if null, calculate all cytokine
+                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/cytokine_info.txt')
 args = parser.parse_args()
 
 summary_path = args.summary_path

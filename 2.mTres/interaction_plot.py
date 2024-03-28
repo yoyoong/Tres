@@ -12,7 +12,7 @@ positive_gene_rank = pd.read_csv(positive_gene_rank_filename, index_col=0)
 negative_gene_rank = pd.read_csv(negative_gene_rank_filename, index_col=0)
 
 
-# SampleNum distribution plot
+# SampleNum distribution 3.clinical_validation
 # positive_sample_num = np.array(positive_gene_rank['SampleNum'])
 # negative_sample_num = np.array(negative_gene_rank['SampleNum'])
 #
@@ -32,7 +32,7 @@ negative_gene_rank = pd.read_csv(negative_gene_rank_filename, index_col=0)
 # fig.savefig(os.path.join(output_directory, 'SampleNum distribution.png'))
 # fig.show()
 
-# scatter plot
+# scatter 3.clinical_validation
 common_gene = positive_gene_rank.index.intersection(negative_gene_rank.index)
 negative_cytokine_negative_gene = negative_gene_rank.loc[common_gene]['Rate(t<0,q<0.05)']
 positive_cytokine_positive_gene = positive_gene_rank.loc[common_gene]['Rate(t>0,q<0.05)']
