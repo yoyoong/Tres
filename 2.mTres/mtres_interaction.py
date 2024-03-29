@@ -15,16 +15,16 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/1.gem_data/Breast.GSE176078.10x.pickle.gz')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/DLBC_GSE175510.csv')
 parser.add_argument('-R', "--response_data", type=str, required=False, help="Precomputed response data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/2-1.Prolifertion/Breast.GSE176078.10x.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-1.Prolifertion/DLBC_GSE175510.csv')
 parser.add_argument('-S', "--signaling_data", type=str, required=False, help="Precomputed signaling data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/2-2.Signaling/Breast.GSE176078.10x.csv')
-parser.add_argument('-CTR', "--celltype_mapping_rules_file", type=str, required=False, help="Celltype mapping rules file, .txt format",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cohort_tumor_Tcell.txt')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-2.Signaling/DLBC_GSE175510.csv')
+parser.add_argument('-CTR', "--celltype_mapping_rules_file", type=str, required=False, help="for paper data use",
+                    default='')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/4.Interaction')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Breast.GSE176078.10x')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='DLBC_GSE175510')
 parser.add_argument('-C', "--count_threshold", type=int, default=100, required=False, help="Minimal number of cells needed for regression [100].")
 parser.add_argument('-RK', "--response_key", type=str, default='Proliferation', required=False, help="Name of response in the data table [Proliferation].")
 parser.add_argument('-SK', "--signaling_key", type=str, default='', required=False, help="Name of signaling in the data") # if null, calculate all cytokine
@@ -125,7 +125,8 @@ else:
 
 flag_group = ['.'.join(v.split('.')[:2]) for v in expression_filtered.columns]
 expression_group = expression_filtered.groupby(flag_group, axis=1)
-result_all = pd.DataFrame(columns=['GeneID', 'Cytokine', 'SampleID', 't', 'p', 'q'])
+# result_all = pd.DataFrame(columns=['GeneID', 'Cytokine', 'SampleID', 't', 'p', 'q'])
+result_all = []
 for sample, expression_sub in tqdm(expression_group, desc="Sample processing"):
     # filter the cell type
     sample_celltype = sample.split(".")[0]
@@ -155,18 +156,23 @@ for sample, expression_sub in tqdm(expression_group, desc="Sample processing"):
         X.loc[:, 'const'] = 1 # d * 1
         X.loc[:, 'pivot'] = result_signaling.loc[signaling_name, expression_sub.columns] # a * suppression
         result_sub = interaction_test(expression_sub, X, y)
-        if result_sub is not None:
-            result_sub['GeneID'] = result_sub.index
-            result_sub['Cytokine'] = signaling_name
-            result_sub['SampleID'] = sample
-            result_all = pd.concat([result_all, result_sub], ignore_index=True)
-            print(f"Signal: {signaling_name}, Sample: {sample} calculate end.")
-        else:
-            print(f"Sample: {sample}, Signal: {signaling_name} no result.")
+        result_sub.columns += ('.%s.%s' % (sample, signaling_name))
+        result_all.append(result_sub)
+        # if result_sub is not None:
+        #     result_sub['GeneID'] = result_sub.index
+        #     result_sub['Cytokine'] = signaling_name
+        #     result_sub['SampleID'] = sample
+        #     result_all = pd.concat([result_all, result_sub], ignore_index=True)
+        #
+        #     print(f"Signal: {signaling_name}, Sample: {sample} calculate end.")
+        # else:
+        #     print(f"Sample: {sample}, Signal: {signaling_name} no result.")
 
-if result_all.shape[0] > 0:
-    result_all.set_index(['Cytokine', 'GeneID', 'SampleID'], inplace=True)
-    result_all.sort_values(['Cytokine', 'GeneID', 'SampleID'], inplace=True)
+if len(result_all) > 0:
+    # result_all.set_index(['Cytokine', 'GeneID', 'SampleID'], inplace=True)
+    # result_all.sort_values(['Cytokine', 'GeneID', 'SampleID'], inplace=True)
+
+    result = pd.concat(result_all, axis=1, join='outer')
     result_filename = os.path.join(output_file_directory, f'{output_tag}.{celltype}.csv')
-    result_all.to_csv(result_filename)
+    result.to_csv(result_filename)
 print("Process end!")

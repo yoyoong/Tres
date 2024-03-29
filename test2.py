@@ -10,12 +10,12 @@ from sklearn.metrics import roc_auc_score
 from lifelines import CoxPHFitter
 from lifelines.fitters.kaplan_meier_fitter import KaplanMeierFitter
 
-signature_df1 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/4.Interaction/tres_signature.negative.csv', index_col=0)
-signature_df2 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/Tres.prediction_signature', sep='\t', index_col=0)
-gene_list = signature_df1.index.intersection(signature_df2.index)
-signature_df1_filtered = signature_df1.loc[gene_list]
-signature_df2_filtered = signature_df2.loc[gene_list]
-correlation, _ = pearsonr(numpy.array(signature_df1_filtered['Tres']), numpy.array(signature_df2_filtered['Tres']))
+# signature_df1 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/4.Interaction/tres_signature.negative.csv', index_col=0)
+# signature_df2 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/Tres.prediction_signature', sep='\t', index_col=0)
+# gene_list = signature_df1.index.intersection(signature_df2.index)
+# signature_df1_filtered = signature_df1.loc[gene_list]
+# signature_df2_filtered = signature_df2.loc[gene_list]
+# correlation, _ = pearsonr(numpy.array(signature_df1_filtered['Tres']), numpy.array(signature_df2_filtered['Tres']))
 
 data_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test'
 output_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test'

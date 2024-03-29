@@ -1,23 +1,23 @@
-expression_dir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/1.gem_data
+expression_dir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data
 expression_list=$(ls ${expression_dir})
-expression_list=("Liver.GSE140228.SS2.pickle.gz" "Nasopharyngeal.GSE162025.10x.pickle.gz" "Renal.Young2018.10x.pickle.gz" "Glioblastoma.GSE163108.10x.pickle.gz" "DLBCL.GSE182434.10x.pickle.gz")
+# expression_list=("")
 for expression_filename in ${expression_list[*]}
 do
     expression_path=${expression_dir}/${expression_filename}
-    expression_tag=$(echo "$expression_filename" | cut -d '.' -f1-3)
-    # expression_tag=$(echo "$expression_filename" | cut -d '.' -f)
+    # expression_tag=$(echo "$expression_filename" | cut -d '.' -f1-3)
+    expression_tag=$(echo "$expression_filename" | cut -d '.' -f1)
     echo "Processing file: $expression_tag"
 
-    output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/4.Interaction
+    output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/new_dataset_interaction
     if [ ! -d ${output_file_directory} ]; then
       mkdir ${output_file_directory}
     fi
 
-    response_data=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/2-1.Prolifertion/${expression_tag}.csv
-    signaling_data=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/2-2.Signaling/${expression_tag}.csv
+    response_data=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-1.Prolifertion/${expression_tag}.csv
+    signaling_data=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-2.Signaling/${expression_tag}.csv
 
     if [ -f ${response_data} ] && [ -f ${signaling_data} ]; then
-      log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/1.paper_data/mtres_interaction
+      log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch2_data/mtres_interaction
       if [ ! -d ${log_directory} ]; then
         mkdir ${log_directory}
       fi
@@ -26,6 +26,7 @@ do
       echo "python3 /sibcb2/bioinformatics2/hongyuyang/code/Tres/2.mTres/mtres_interaction.py -E ${expression_path} -R ${response_data} -S ${signaling_data} -D ${output_file_directory} -O ${expression_tag}" | \
         qsub -q b1.q -N ${expression_tag} -V -cwd -o ${log_filename} -j y
     fi
+    sleep 2m
 done
 
 
@@ -35,14 +36,14 @@ for cytokine in ${cytokine_list[*]}
 do
     echo "Processing cytokine: ${cytokine}"
 
-    interaction_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/4.Interaction/dataset_interaction
-    output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/4.Interaction/cytokine_summary
+    interaction_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/dataset_interaction
+    output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/cytokine_summary
     if [ ! -d ${output_file_directory} ]; then
       mkdir ${output_file_directory}
     fi
     output_tag=${cytokine}.summary
 
-    log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/1.paper_data/data_process
+    log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch2_data/data_process
     if [ ! -d ${log_directory} ]; then
       mkdir ${log_directory}
     fi
