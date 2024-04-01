@@ -10,15 +10,17 @@ from sklearn.metrics import roc_auc_score
 from lifelines import CoxPHFitter
 from lifelines.fitters.kaplan_meier_fitter import KaplanMeierFitter
 
-# signature_df1 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/4.Interaction/tres_signature.negative.csv', index_col=0)
-# signature_df2 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/Tres.prediction_signature', sep='\t', index_col=0)
-# gene_list = signature_df1.index.intersection(signature_df2.index)
-# signature_df1_filtered = signature_df1.loc[gene_list]
-# signature_df2_filtered = signature_df2.loc[gene_list]
-# correlation, _ = pearsonr(numpy.array(signature_df1_filtered['Tres']), numpy.array(signature_df2_filtered['Tres']))
+signature_df1 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/Tres.prediction_signature', sep='\t', index_col=0)
+signature_df2 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/Tres_signature.negative.csv', index_col=0)
+gene_list = signature_df1.index.intersection(signature_df2.index)
+signature_df1_filtered = signature_df1.loc[gene_list]
+signature_df2_filtered = signature_df2.loc[gene_list]
+correlation, _ = pearsonr(numpy.array(signature_df1_filtered['Tres']), numpy.array(signature_df2_filtered['Tres']))
 
 data_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test'
-output_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test'
+output_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/result'
+
+signature_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/Tres_signature.negative.csv'
 
 font_size = 30
 figure_width = 7
@@ -75,7 +77,7 @@ def main():
     # create a prediction signature with Tres and Tpersistance
     merge = []
 
-    signature = pandas.read_csv(os.path.join(output_path, 'tres_signature.negative.csv'), sep='\t', index_col=0)['Tres']
+    signature = pandas.read_csv(signature_path, index_col=0)['Tres']
     merge.append(signature)
 
     signature = pandas.read_excel(os.path.join(data_path, 'signature', 'Tpersistance.Krishna2020.xlsx'), index_col=0)
@@ -95,9 +97,17 @@ def main():
         title = '%s_%s_%s_%s' % (treatment, timepoint, cohort, cancer)
         print(title)
 
+        # try:
+        #     output_data = data.copy()
+        #     output_data.columns = [f'{sample}.{str(res)}' for sample, res in zip(list(output_data.columns), list(response))]
+        #     output_data.to_csv(f"/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/{title}.csv")
+        # except:
+        #     continue
+
         output = os.path.join(output_path, title)
 
         correlation = signature.apply(lambda v: data.corrwith(v))
+
 
         common = correlation.index.intersection(response.index)
         response = response.loc[common]

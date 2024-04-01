@@ -1,6 +1,7 @@
 expression_dir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data
 expression_list=$(ls ${expression_dir})
-# expression_list=("")
+
+expression_list=("NSCLC_GSE176021_aPD1")
 for expression_filename in ${expression_list[*]}
 do
     expression_path=${expression_dir}/${expression_filename}
@@ -24,9 +25,8 @@ do
       log_filename=${log_directory}/${expression_tag}.log
       rm ${log_filename}
       echo "python3 /sibcb2/bioinformatics2/hongyuyang/code/Tres/2.mTres/mtres_interaction.py -E ${expression_path} -R ${response_data} -S ${signaling_data} -D ${output_file_directory} -O ${expression_tag}" | \
-        qsub -q b1.q -N ${expression_tag} -V -cwd -o ${log_filename} -j y
+        qsub -q b1.q@fnode015.sibcb.ac.cn  -N ${expression_tag} -V -cwd -o ${log_filename} -j y
     fi
-    sleep 2m
 done
 
 

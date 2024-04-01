@@ -9,7 +9,7 @@ from tqdm.autonotebook import tqdm
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-D', "--dataset", type=str, required=False, help="Dataset name", default='Yost2019')
+parser.add_argument('-D', "--dataset", type=str, required=False, help="Dataset name", default='Zhang2021')
 args = parser.parse_args()
                     
 dataset = args.dataset
@@ -57,26 +57,22 @@ elif dataset == 'Fraietta2018':
     gem_df = pd.read_csv(input_path, header=0, sep='\t', index_col=0)
     flag_group = gem_df.columns
 
-# group the gem and calculate average
-gem_bulk = gem_df.groupby(flag_group, axis=1).mean()
-gem_bulk.to_csv(os.path.join(output_file_directory, f'{output_tag}.raw.csv'))
 
+
+# raw
+gem_raw = gem_df.groupby(flag_group, axis=1).mean()
+gem_raw.to_csv(os.path.join(output_file_directory, f'{output_tag}.raw.csv'))
+
+# log
 gem_log = (gem_df + 1).apply(np.log2)
-gem_bulk = gem_log.groupby(flag_group, axis=1).mean()
-gem_bulk.to_csv(os.path.join(output_file_directory, f'{output_tag}.log.csv'))
+gem_log = gem_log.groupby(flag_group, axis=1).mean()
+gem_log.to_csv(os.path.join(output_file_directory, f'{output_tag}.log.csv'))
 
-# # normalize
-gem_df *= 1E5 / gem_df.sum()
-gem_df = (gem_df + 1).apply(np.log2)
+# centralize
+gem_centralize = gem_raw.sub(gem_raw.mean(axis=1), axis=0)
+gem_centralize.to_csv(os.path.join(output_file_directory, f'{output_tag}.centralize.csv'))
 
-# group the gem and calculate average
-gem_bulk = gem_df.groupby(flag_group, axis=1).mean()
-gem_bulk.to_csv(os.path.join(output_file_directory, f'{output_tag}.normalize_log.csv'))
-
-# # centralize
-gem_df = gem_df.sub(gem_df.mean(axis=1), axis=0)
-
-# group the gem and calculate average
-gem_bulk = gem_df.groupby(flag_group, axis=1).mean()
-gem_bulk.to_csv(os.path.join(output_file_directory, f'{output_tag}.normalize_log_centralize.csv'))
+# log+centralize
+gem_log_centralize = gem_log.sub(gem_log.mean(axis=1), axis=0)
+gem_log_centralize.to_csv(os.path.join(output_file_directory, f'{output_tag}.log_centralize.csv'))
 print(f"{output_tag} process end")

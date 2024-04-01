@@ -18,32 +18,44 @@ for i in range(len(dataset_list)):
     dataset = dataset_list[i]
     state = state_list[i]
 
-    correlation_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.clinical_data/{dataset}/{dataset}.correlation.raw.csv'
-    sample_annotation_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.clinical_data/{dataset}/{dataset}.sample_annotation.txt'
+    correlation_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.clinical_data/{dataset}/{dataset}.correlation.csv'
+    # sample_annotation_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.clinical_data/{dataset}/{dataset}.sample_annotation.txt'
+
+    if dataset == 'Zhang2021':
+        bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/Atezolizumab+Paclitaxel_Pre_Zhang2021_TNBC.csv'
+    elif dataset == 'SadeFeldman2018':
+        bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/ICB_Pre_SadeFeldman2018_Melanoma.csv'
+    elif dataset == 'Yost2019':
+        bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/anti-PD1_Pre_Yost2019_BCC.csv'
+    elif dataset == 'Fraietta2018':
+        bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/CD19CAR_Infusion.CAR_Fraietta2018_CLL.csv'
+    bulk_profile_df = pd.read_csv(bulk_profile_path, index_col=0)
 
     correlation_df = pd.read_csv(correlation_path, header=0, index_col=0)
-    sample_annotation_df = pd.read_csv(sample_annotation_path, delimiter='\t', header=0, index_col=0)
-
-    # filter the Pre sample
-    sample_list = sample_annotation_df.index.values.tolist()
-    if dataset == 'Yost2019':
-        pre_tcell = [col for col in sample_list if 'pre.tcell' in col]
-        pre_tcell_patient = [col.split('.')[1] for col in pre_tcell]
-        others = [x for x in sample_list if x not in pre_tcell]
-        for sample in others:
-            if sample.split('.')[1] in pre_tcell_patient:
-                continue
-            else:
-                if 'pre' in sample:
-                    pre_tcell.append(sample)
-        sample_list = pre_tcell
-
-    if dataset != 'Fraietta2018':
-        sample_list = [sample for sample in sample_list if state.lower() in sample.lower()]
-        sample_annotation_df = sample_annotation_df.loc[sample_list]
-
-    response_correlation = correlation_df.loc[sample_annotation_df[sample_annotation_df['response'] == 'R'].index]
-    nonresponse_correlation = correlation_df.loc[sample_annotation_df[sample_annotation_df['response'] == 'NR'].index]
+    # sample_annotation_df = pd.read_csv(sample_annotation_path, delimiter='\t', header=0, index_col=0)
+    #
+    # # filter the Pre sample
+    # sample_list = sample_annotation_df.index.values.tolist()
+    # if dataset == 'Yost2019':
+    #     pre_tcell = [col for col in sample_list if 'pre.tcell' in col]
+    #     pre_tcell_patient = [col.split('.')[1] for col in pre_tcell]
+    #     others = [x for x in sample_list if x not in pre_tcell]
+    #     for sample in others:
+    #         if sample.split('.')[1] in pre_tcell_patient:
+    #             continue
+    #         else:
+    #             if 'pre' in sample:
+    #                 pre_tcell.append(sample)
+    #     sample_list = pre_tcell
+    #
+    # if dataset != 'Fraietta2018':
+    #     sample_list = [sample for sample in sample_list if state.lower() in sample.lower()]
+    #     sample_annotation_df = sample_annotation_df.loc[sample_list]
+    #
+    # response_correlation = correlation_df.loc[sample_annotation_df[sample_annotation_df['response'] == 'R'].index]
+    # nonresponse_correlation = correlation_df.loc[sample_annotation_df[sample_annotation_df['response'] == 'NR'].index]
+    response_correlation = correlation_df.loc[[col for col in bulk_profile_df.columns if 'True' in col]]
+    nonresponse_correlation = correlation_df.loc[[col for col in bulk_profile_df.columns if 'False' in col]]
 
     correlation_data = [np.array(response_correlation).ravel(), np.array(nonresponse_correlation).ravel()]
     p_value = ranksums(response_correlation, nonresponse_correlation).pvalue
