@@ -38,15 +38,15 @@ if dataset == 'Zhang2021':
     gem_df = pd.DataFrame(gem_adata.X.T.toarray(), index=genename_list, columns=cellname_list)
 
     # filter the gem
-    columms_filtered = [col for col in gem_df.columns if col.split('.')[1] in sample_list]
-    gem_df = gem_df[columms_filtered]
+    # columms_filtered = [col for col in gem_df.columns if col.split('.')[1] in sample_list]
+    # gem_df = gem_df[columms_filtered]
     flag_group = [col.split('.')[1] for col in gem_df.columns]
 
 elif dataset == 'SadeFeldman2018':
     gem_df = pd.read_csv(input_path, compression="gzip", header=[0, 1], sep='\t')
     gem_df.columns = gem_df.columns.map('.'.join)
-    columms_filtered = [col for col in gem_df.columns if col.split('.')[1] in sample_list]
-    gem_df = gem_df[columms_filtered]  # filter the gem
+    # columms_filtered = [col for col in gem_df.columns if col.split('.')[1] in sample_list]
+    # gem_df = gem_df[columms_filtered]  # filter the gem
     flag_group = [col.split('.')[1] for col in gem_df.columns]
 
 elif dataset == 'Yost2019':
@@ -57,22 +57,10 @@ elif dataset == 'Fraietta2018':
     gem_df = pd.read_csv(input_path, header=0, sep='\t', index_col=0)
     flag_group = gem_df.columns
 
+gem_df *= 1E5 / gem_df.sum()
+gem_df = np.log2(gem_df + 1)
+gem_df = gem_df.subtract(gem_df.mean(axis=1), axis=0)
 
-
-# raw
-gem_raw = gem_df.groupby(flag_group, axis=1).mean()
-gem_raw.to_csv(os.path.join(output_file_directory, f'{output_tag}.raw.csv'))
-
-# log
-gem_log = (gem_df + 1).apply(np.log2)
-gem_log = gem_log.groupby(flag_group, axis=1).mean()
-gem_log.to_csv(os.path.join(output_file_directory, f'{output_tag}.log.csv'))
-
-# centralize
-gem_centralize = gem_raw.sub(gem_raw.mean(axis=1), axis=0)
-gem_centralize.to_csv(os.path.join(output_file_directory, f'{output_tag}.centralize.csv'))
-
-# log+centralize
-gem_log_centralize = gem_log.sub(gem_log.mean(axis=1), axis=0)
-gem_log_centralize.to_csv(os.path.join(output_file_directory, f'{output_tag}.log_centralize.csv'))
+gem_bulk = gem_df.groupby(flag_group, axis=1).mean()
+gem_bulk.to_csv(os.path.join(output_file_directory, f'{output_tag}.csv'))
 print(f"{output_tag} process end")

@@ -8,6 +8,7 @@ import sys
 import warnings
 from tqdm.autonotebook import tqdm
 warnings.filterwarnings("ignore")
+import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-I', "--interaction_path", type=str, required=False, help="Interaction result path.",
@@ -78,10 +79,10 @@ def get_median_signature(all_signature):
     median_signature.to_csv(median_signature_filename)
 
     # filter the rate of valid median sample num < 0.5
-    # tres_signature = median_signature.dropna().median(axis=1)
-    tres_signature = median_signature.loc[median_signature.isnull().mean(axis=1) < 0.5]
-    tres_signature = tres_signature.median(axis=1)
     # tres_signature = median_signature.dropna(how='all').median(axis=1)
+    tres_signature = median_signature.loc[median_signature.isnull().mean(axis=1) < 0.5].median(axis=1)
+    # tres_signature = median_signature.dropna().median(axis=1)
+
     tres_signature.name = 'Tres'
 
     return tres_signature
@@ -104,6 +105,13 @@ for interaction_filename in tqdm(interaction_list, desc='Processing interaction 
         else:
             cytokine_signature_dict[cytokine].append(dataset_cytokine_signature)
 
+
+with open(os.path.join(output_file_directory, f'cytokine_signature_dict.pkl'), 'wb') as file:
+    pickle.dump(cytokine_signature_dict, file)
+
+# with open(os.path.join(output_file_directory, f'cytokine_signature_dict.pkl'), 'rb') as file:
+#     cytokine_signature_dict = pd.read_pickle(file)
+
 all_positive_signature = []
 all_negative_signature = []
 for cytokine in tqdm(cytokine_list, desc='Processing cytokine list'):
@@ -111,6 +119,7 @@ for cytokine in tqdm(cytokine_list, desc='Processing cytokine list'):
         continue
     cytokine_signature = pd.concat(cytokine_signature_dict[cytokine], axis=1, join='outer', sort=False)
     assert cytokine_signature.columns.value_counts().max() == 1
+
     cytokine_signature_filename = os.path.join(output_file_directory, 'cytokine_signature', f'{cytokine}.signature.csv')
     cytokine_signature.to_csv(cytokine_signature_filename)
 

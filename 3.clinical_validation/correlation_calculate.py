@@ -7,6 +7,7 @@ import scanpy as sc
 from scipy.sparse import coo_matrix
 from tqdm.autonotebook import tqdm
 from scipy.stats import pearsonr
+from scipy.stats import normaltest,shapiro
 
 dataset_list = ["Zhang2021", "SadeFeldman2018", "Yost2019", "Fraietta2018"]
 for dataset in dataset_list:
@@ -15,21 +16,28 @@ for dataset in dataset_list:
     output_file_directory = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.clinical_data/{dataset}'
     output_tag = f'{dataset}.correlation'
 
-    # bulk_profile_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.clinical_data/{dataset}/{dataset}.bulk_profile.log_centralize.csv'
-    if dataset == 'Zhang2021':
-        bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/Atezolizumab+Paclitaxel_Pre_Zhang2021_TNBC.csv'
-    elif dataset == 'SadeFeldman2018':
-        bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/ICB_Pre_SadeFeldman2018_Melanoma.csv'
-    elif dataset == 'Yost2019':
-        bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/anti-PD1_Pre_Yost2019_BCC.csv'
-    elif dataset == 'Fraietta2018':
-        bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/CD19CAR_Infusion.CAR_Fraietta2018_CLL.csv'
+    bulk_profile_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.clinical_data/{dataset}/{dataset}.bulk_profile.normalized.csv'
+    # if dataset == 'Zhang2021':
+    #     bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/Atezolizumab+Paclitaxel_Pre_Zhang2021_TNBC.csv'
+    # elif dataset == 'SadeFeldman2018':
+    #     bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/ICB_Pre_SadeFeldman2018_Melanoma.csv'
+    # elif dataset == 'Yost2019':
+    #     bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/anti-PD1_Pre_Yost2019_BCC.csv'
+    # elif dataset == 'Fraietta2018':
+    #     bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/CD19CAR_Infusion.CAR_Fraietta2018_CLL.csv'
 
     tres_signature_df = pd.read_csv(tres_signature_path, index_col=0)
+
     # filter top and down 5000 genes
-    top_rows = tres_signature_df[tres_signature_df['Tres'].isin(tres_signature_df['Tres'].nlargest(2000))]
-    down_rows = tres_signature_df[tres_signature_df['Tres'].isin(tres_signature_df['Tres'].nsmallest(2000))]
-    tres_signature_df = pd.concat([top_rows, down_rows], axis=0)
+    # top_rows = tres_signature_df[tres_signature_df['Tres'].isin(tres_signature_df['Tres'].nlargest(10000))]
+    # down_rows = tres_signature_df[tres_signature_df['Tres'].isin(tres_signature_df['Tres'].nsmallest(10000))]
+    # tres_signature_df = pd.concat([top_rows, down_rows], axis=0)
+
+    # gene_rank_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/Gene_rank.negative.csv'
+    # gene_rank_df = pd.read_csv(gene_rank_path, index_col=0)
+    # top_positive_genes = gene_rank_df[gene_rank_df['Rank(t>0,q<0.05)'] < 5000].index
+    # top_negative_genes = gene_rank_df[gene_rank_df['Rank(t<0,q<0.05)'] < 3000].index
+    # tres_signature_df = tres_signature_df.loc[tres_signature_df.index.intersection(top_positive_genes)]
 
     bulk_profile_df = pd.read_csv(bulk_profile_path, index_col=0)
     gene_list = bulk_profile_df.index.intersection(tres_signature_df.index) # common gene list
