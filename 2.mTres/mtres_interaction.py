@@ -15,15 +15,15 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/DLBC_GSE175510.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data/DLBC_GSE175510.csv')
 parser.add_argument('-R', "--response_data", type=str, required=False, help="Precomputed response data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-1.Prolifertion/DLBC_GSE175510.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-1.Prolifertion/DLBC_GSE175510.csv')
 parser.add_argument('-S', "--signaling_data", type=str, required=False, help="Precomputed signaling data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-2.Signaling/DLBC_GSE175510.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-2.Signaling/DLBC_GSE175510.csv')
 parser.add_argument('-CTR', "--celltype_mapping_rules_file", type=str, required=False, help="for paper data use",
                     default='')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='DLBC_GSE175510')
 parser.add_argument('-C', "--count_threshold", type=int, default=100, required=False, help="Minimal number of cells needed for regression [100].")
 parser.add_argument('-RK', "--response_key", type=str, default='Proliferation', required=False, help="Name of response in the data table [Proliferation].")

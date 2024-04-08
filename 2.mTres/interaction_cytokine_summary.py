@@ -10,12 +10,12 @@ import scipy
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-I', "--interaction_path", type=str, required=False, help="Interaction result path.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/new_dataset_interaction')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/new_dataset_interaction')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='')
 parser.add_argument('-C', "--cytokine_info", type=str, required=False, help="Name of signaling, str or .txt file"
-                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/cytokine_info.txt')
+                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/cytokine_info.txt')
 parser.add_argument('-G', "--gene_annotation", type=str, required=False, help="Name of signaling, str or .txt file"
                     , default='/sibcb2/bioinformatics/iGenome/STAR/GENCODE/human_hg38/ID/tx2g.txt')
 args = parser.parse_args()
@@ -40,17 +40,16 @@ for interaction_filename in tqdm(interaction_list, desc='Processing dataset'):
     for cytokine in cytokine_list:
         # filter the cytokine
         cytokine_flag = [col for col in interaction_data.columns if col.split('.')[-1] == cytokine]
-        interaction_data = interaction_data[cytokine_flag]
-        interaction_data = interaction_data.dropna(how='all')
+        interaction_cytokine_data = interaction_data[cytokine_flag].dropna(how='all')
 
         # extract t-values
-        t_flag = [(v.find('t.') == 0) for v in interaction_data.columns]
-        interaction_t = interaction_data.loc[:, t_flag]
+        t_flag = [(v.find('t.') == 0) for v in interaction_cytokine_data.columns]
+        interaction_t = interaction_cytokine_data.loc[:, t_flag]
         interaction_t.columns = ["%s.%s" % (dataset_name, '.'.join(v.split('.')[1:-1])) for v in interaction_t.columns]
 
         # extract q-values
-        q_flag = [(v.find('q.') == 0) for v in interaction_data.columns]
-        interaction_q = interaction_data.loc[:, q_flag]
+        q_flag = [(v.find('q.') == 0) for v in interaction_cytokine_data.columns]
+        interaction_q = interaction_cytokine_data.loc[:, q_flag]
         interaction_q.columns = ["%s.%s" % (dataset_name, '.'.join(v.split('.')[1:-1])) for v in interaction_q.columns]
 
         # summary the interaction
@@ -62,8 +61,10 @@ for interaction_filename in tqdm(interaction_list, desc='Processing dataset'):
         cytokine_summary_df['Num(t>0,q<0.05)'] = interaction_t.apply(lambda row: sum(row > 0), axis=1)
         cytokine_summary_df['Num(t<0,q<0.05)'] = interaction_t.apply(lambda row: sum(row < 0), axis=1)
         if cytokine_summary_df.empty:
+            # print(f'{interaction_filename}-{cytokine} empty')
             continue
 
+        cytokine_summary_df.sort_index(inplace=True)
         if cytokine not in cytokine_summary_dict.keys():
             cytokine_summary_dict[cytokine] = cytokine_summary_df
         else:
@@ -72,15 +73,21 @@ for interaction_filename in tqdm(interaction_list, desc='Processing dataset'):
             new_df = cytokine_summary_dict[cytokine].add(cytokine_summary_df, fill_value=0)
             cytokine_summary_dict[cytokine] = new_df
 
+    print(f'{interaction_filename} end')
+
 positive_gene_rank_df = pd.DataFrame(columns=['GeneID', 'SampleNum', 'Num(t>0,q<0.05)', 'Num(t<0,q<0.05)',
                                      'Rate(t>0,q<0.05)', 'Rate(t<0,q<0.05)', 'Rank(t>0,q<0.05)', 'Rank(t<0,q<0.05)', 'mType'])
 negative_gene_rank_df = pd.DataFrame(columns=['GeneID', 'SampleNum', 'Num(t>0,q<0.05)', 'Num(t<0,q<0.05)',
                                      'Rate(t>0,q<0.05)', 'Rate(t<0,q<0.05)', 'Rank(t>0,q<0.05)', 'Rank(t<0,q<0.05)', 'mType'])
 for cytokine in tqdm(cytokine_list, desc='Processing cytokine list'):
-    cytokine_summary = cytokine_summary_dict[cytokine]
     cytokine_summary_filename = os.path.join(output_file_directory, 'new_cytokine_summary', f'{cytokine}.summary.csv')
+    cytokine_summary = cytokine_summary_dict[cytokine]
     cytokine_summary.to_csv(cytokine_summary_filename)
 
+    # cytokine_summary_filename = os.path.join(output_file_directory, 'new_cytokine_summary', f'{cytokine}.summary.csv')
+    # cytokine_summary = pd.read_csv(cytokine_summary_filename)
+
+    cytokine_flag = cytokine_info_df.loc[cytokine]['flag']
     if cytokine_flag == "+":
         positive_gene_rank_df = pd.concat([positive_gene_rank_df, cytokine_summary], ignore_index=True)
     else:

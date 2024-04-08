@@ -1,6 +1,6 @@
 dataset_tag=NSCLC_GSE176021_aPD1
-input_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/${dataset_tag}.csv
-output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/${dataset_tag}
+input_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data/${dataset_tag}.csv
+output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data/${dataset_tag}
 
 rm ${output_file_directory}
 mkdir ${output_file_directory}
@@ -30,8 +30,8 @@ done
 
 
 # 输入CSV文件名
-input_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/NSCLC_GSE127471.csv
-output_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data/NSCLC_GSE127471
+input_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data/NSCLC_GSE127471.csv
+output_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data/NSCLC_GSE127471
 # 读取列名
 header=$(head -n 1 "$input_file")
 # 以逗号为分隔符将列名分割成数组

@@ -12,12 +12,12 @@ import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-I', "--interaction_path", type=str, required=False, help="Interaction result path.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/new_dataset_interaction')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/new_dataset_interaction')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Tres_signature')
 parser.add_argument('-C', "--cytokine_info", type=str, required=False, help="Name of signaling, str or .txt file"
-                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/cytokine_info.txt')
+                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/cytokine_info.txt')
 args = parser.parse_args()
 
 interaction_path = args.interaction_path

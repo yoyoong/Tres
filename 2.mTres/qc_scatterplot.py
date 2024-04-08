@@ -11,9 +11,9 @@ parser.add_argument('-CT', "--celltype", type=str, default='CD8T', required=Fals
 parser.add_argument('-R1', "--qc_result_file1", type=str, required=False, help="qc result file path",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/1.paper_data/3.qc_result/CD8T.qc_result.csv')
 parser.add_argument('-R2', "--qc_result_file2", type=str, required=False, help="qc result file path",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/3.qc_result/CD8T.qc_result.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3.qc_result/CD8T.qc_result.csv')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/3.qc_result')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3.qc_result')
 args = parser.parse_args()
 
 celltype = args.celltype

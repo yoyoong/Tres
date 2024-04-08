@@ -11,7 +11,7 @@ from lifelines import CoxPHFitter
 from lifelines.fitters.kaplan_meier_fitter import KaplanMeierFitter
 
 signature_df1 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/Tres.prediction_signature', sep='\t', index_col=0)
-signature_df2 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/Tres_signature.negative.csv', index_col=0)
+signature_df2 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/Tres_signature.negative.csv', index_col=0)
 gene_list = signature_df1.index.intersection(signature_df2.index)
 signature_df1_filtered = signature_df1.loc[gene_list]
 signature_df2_filtered = signature_df2.loc[gene_list]
@@ -20,7 +20,7 @@ correlation, _ = pearsonr(numpy.array(signature_df1_filtered['Tres']), numpy.arr
 data_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test'
 output_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/result'
 
-signature_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/Tres_signature.negative.csv'
+signature_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/Tres_signature.negative.csv'
 
 font_size = 30
 figure_width = 7

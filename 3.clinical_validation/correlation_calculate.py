@@ -11,7 +11,7 @@ from scipy.stats import normaltest,shapiro
 
 dataset_list = ["Zhang2021", "SadeFeldman2018", "Yost2019", "Fraietta2018"]
 for dataset in dataset_list:
-    tres_signature_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/Tres_signature.negative.csv'
+    tres_signature_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/Tres_signature.negative.csv'
     sample_annotation_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.clinical_data/{dataset}/{dataset}.sample_annotation.txt'
     output_file_directory = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.clinical_data/{dataset}'
     output_tag = f'{dataset}.correlation'
@@ -33,7 +33,7 @@ for dataset in dataset_list:
     # down_rows = tres_signature_df[tres_signature_df['Tres'].isin(tres_signature_df['Tres'].nsmallest(10000))]
     # tres_signature_df = pd.concat([top_rows, down_rows], axis=0)
 
-    # gene_rank_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/Gene_rank.negative.csv'
+    # gene_rank_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/Gene_rank.negative.csv'
     # gene_rank_df = pd.read_csv(gene_rank_path, index_col=0)
     # top_positive_genes = gene_rank_df[gene_rank_df['Rank(t>0,q<0.05)'] < 5000].index
     # top_negative_genes = gene_rank_df[gene_rank_df['Rank(t<0,q<0.05)'] < 3000].index

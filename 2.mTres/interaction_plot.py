@@ -5,9 +5,9 @@ import seaborn as sns
 import pandas as pd
 import os
 
-output_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction'
-positive_gene_rank_filename = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/Gene_rank.positive.csv'
-negative_gene_rank_filename = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/Gene_rank.negative.csv'
+output_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction'
+positive_gene_rank_filename = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/Gene_rank.positive.csv'
+negative_gene_rank_filename = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/Gene_rank.negative.csv'
 positive_gene_rank = pd.read_csv(positive_gene_rank_filename, index_col=0)
 negative_gene_rank = pd.read_csv(negative_gene_rank_filename, index_col=0)
 

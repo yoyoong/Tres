@@ -15,13 +15,13 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/1.gem_data')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data')
 parser.add_argument('-R', "--response_path", type=str, required=False, help="Precomputed response data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-1.Prolifertion')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-1.Prolifertion')
 parser.add_argument('-S', "--signaling_path", type=str, required=False, help="Precomputed signaling data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/2-2.Signaling')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-2.Signaling')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/3.qc_result')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3.qc_result')
 parser.add_argument('-RK', "--response_key", type=str, default='Proliferation', required=False, help="Name of response in the data table [Proliferation].")
 parser.add_argument('-CT', "--celltype", type=str, default='CD8T', required=False, help="cell type")
 parser.add_argument('-CTR', "--celltype_mapping_rules_file", type=str, required=False, help="Celltype mapping rules file, .txt format",
@@ -48,7 +48,7 @@ if celltype_mapping_rules_file:
 for expression_file in expression_list:
     expression_basename = os.path.basename(expression_file)
     file_suffix = ".pickle.gz"
-    if "tisch2" in expression_path:
+    if "tisch" in expression_path:
         file_suffix = ".csv"
     dataset_tag = expression_basename.split(file_suffix)[0]
 

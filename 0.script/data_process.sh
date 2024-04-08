@@ -4,14 +4,14 @@ for cytokine in ${cytokine_list[*]}
 do
     echo "Processing cytokine: ${cytokine}"
 
-    interaction_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/dataset_interaction
-    output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch2_data/4.Interaction/cytokine_summary
+    interaction_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/dataset_interaction
+    output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/cytokine_summary
     if [ ! -d ${output_file_directory} ]; then
       mkdir ${output_file_directory}
     fi
     output_tag=${cytokine}.summary
 
-    log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch2_data/data_process
+    log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/data_process
     if [ ! -d ${log_directory} ]; then
       mkdir ${log_directory}
     fi
