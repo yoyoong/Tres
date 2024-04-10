@@ -22,5 +22,5 @@ def read_expression(input_file):
     assert expression.index.value_counts().max() == 1
     assert expression.columns.value_counts().max() == 1
 
-    # print('expression matrix dimension', expression.shape)
+    print('expression matrix dimension', expression.shape)
     return expression

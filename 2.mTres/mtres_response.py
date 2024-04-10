@@ -13,14 +13,14 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file or directory.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.macrophage/1.raw_data/GSE168710.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.macrophage/GSE168710/GSE168710_normalized.csv')
 parser.add_argument('-G', "--genesets_GMT_file", type=str, required=False, help="Background gene sets in GMT format.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/Tres.kegg')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/SMaRT_geneset.txt')
 parser.add_argument('-S', "--signature_name_file", type=str, required=False, help="Names of the signatures, one name in one line.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/macrophage_signature_name_file.txt')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.macrophage')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='GSE168710')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.macrophage/GSE168710')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='GSE168710.polarization')
 args = parser.parse_args()
 
 expression_path = args.expression_path
@@ -68,7 +68,7 @@ def profile_geneset_signature(expression, geneset_file, name_file):
     return result[2]
 
 
-def profile_macrophage_geneset_signature(expression, geneset_file, name_file):
+def profile_macrophage_geneset_signature(expression, geneset_file, path_name):
     # all gene sets
     signature = []
     fin = open(geneset_file)
@@ -76,14 +76,6 @@ def profile_macrophage_geneset_signature(expression, geneset_file, name_file):
         fields = l.strip().split('\t')
         s = fields[2:]
         signature.append(pd.Series(numpy.ones(len(s)), index=s, name=fields[0]))
-    fin.close()
-
-    # gene set names
-    names = []
-    fin = open(name_file)
-    for l in fin:
-        fields = l.strip().split('\t')
-        names.append(fields[0])
     fin.close()
 
     # 此时signature是每个kegg通路的基因名，行为通路，列为基因
@@ -94,10 +86,10 @@ def profile_macrophage_geneset_signature(expression, geneset_file, name_file):
     signature, expression = signature.loc[common], expression.loc[common]  # 只取共有的基因
 
     background = signature.mean(axis=1)  # 求每个基因对所有通路的平均值
-    background.name = 'study bias'
+    background.name = f'{path_name} study bias'
 
-    X = signature.loc[:, names].mean(axis=1)  # 求每个基因对name_file中的通路的平均值
-    X.name = 'Proliferation'
+    X = signature.loc[:, path_name].to_frame().mean(axis=1)  # 求每个基因对name_file中的通路的平均值
+    X.name = path_name
 
     X = pd.concat([background, X], axis=1, join='inner')
 
@@ -109,8 +101,11 @@ def profile_macrophage_geneset_signature(expression, geneset_file, name_file):
 result = pd.DataFrame()
 if not os.path.isdir(expression_path):
     expression = read_expression(expression_path)
+    # expression = []
     if signature_name_file.find('macrophage') >= 0:
-
+        c13_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C13')
+        c14_3_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C3')
+        result = pd.concat([c13_result, c14_3_result])
     else:
         result = profile_geneset_signature(expression, genesets_GMT_file, signature_name_file)
 else:
@@ -121,6 +116,6 @@ else:
         result = pd.concat([result, sub_result], axis=1)
         print(f"{expression_file} calculate end.")
 
-prolifertion_filename = os.path.join(output_file_directory, f'{output_tag}.csv')
+prolifertion_filename = os.path.join(output_file_directory, f'{output_tag}.New_Tres.C13-C3.csv')
 result.to_csv(prolifertion_filename, sep='\t')
 print("Process end!")
