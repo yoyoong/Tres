@@ -1,3 +1,4 @@
+import sys
 import argparse
 import numpy
 import os
@@ -13,23 +14,32 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file or directory.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.macrophage/GSE168710/GSE168710_normalized.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data/UVM_GSE139829')
 parser.add_argument('-G', "--genesets_GMT_file", type=str, required=False, help="Background gene sets in GMT format.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/SMaRT_geneset.txt')
 parser.add_argument('-S', "--signature_name_file", type=str, required=False, help="Names of the signatures, one name in one line.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/macrophage_signature_name_file.txt')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature_name_file.Macrophage.txt')
+parser.add_argument('-CT', "--celltype", type=str, default='Macrophage', required=False, help="cell type")
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.macrophage/GSE168710')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='GSE168710.polarization')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-2.Polarization')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='UVM_GSE139829')
 args = parser.parse_args()
 
 expression_path = args.expression_path
 genesets_GMT_file = args.genesets_GMT_file
 signature_name_file = args.signature_name_file
+celltype = args.celltype
 output_file_directory = args.output_file_directory
 output_tag = args.output_tag
 
-def profile_geneset_signature(expression, geneset_file, name_file):
+if celltype == 'Macrophage':
+    celltype_in_column = 'Mono/Macro'
+    celltype_in_file = 'Mono_Macro'
+else:
+    celltype_in_column = celltype
+    celltype_in_file = celltype
+
+def profile_geneset_signature(expression, geneset_file, signature_name_file):
     # all gene sets
     signature = []
     fin = open(geneset_file)
@@ -41,7 +51,7 @@ def profile_geneset_signature(expression, geneset_file, name_file):
 
     # gene set names
     names = []
-    fin = open(name_file)
+    fin = open(signature_name_file)
     for l in fin:
         fields = l.strip().split('\t')
         names.append(fields[0])
@@ -68,7 +78,7 @@ def profile_geneset_signature(expression, geneset_file, name_file):
     return result[2]
 
 
-def profile_macrophage_geneset_signature(expression, geneset_file, path_name):
+def profile_macrophage_geneset_signature(expression, geneset_file, signature_name):
     # all gene sets
     signature = []
     fin = open(geneset_file)
@@ -86,10 +96,10 @@ def profile_macrophage_geneset_signature(expression, geneset_file, path_name):
     signature, expression = signature.loc[common], expression.loc[common]  # 只取共有的基因
 
     background = signature.mean(axis=1)  # 求每个基因对所有通路的平均值
-    background.name = f'{path_name} study bias'
+    background.name = f'{signature_name} study bias'
 
-    X = signature.loc[:, path_name].to_frame().mean(axis=1)  # 求每个基因对name_file中的通路的平均值
-    X.name = path_name
+    X = signature.loc[:, signature_name].to_frame().mean(axis=1)  # 求每个基因对name_file中的通路的平均值
+    X.name = signature_name
 
     X = pd.concat([background, X], axis=1, join='inner')
 
@@ -101,21 +111,44 @@ def profile_macrophage_geneset_signature(expression, geneset_file, path_name):
 result = pd.DataFrame()
 if not os.path.isdir(expression_path):
     expression = read_expression(expression_path)
-    # expression = []
-    if signature_name_file.find('macrophage') >= 0:
-        c13_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C13')
-        c14_3_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C3')
-        result = pd.concat([c13_result, c14_3_result])
-    else:
-        result = profile_geneset_signature(expression, genesets_GMT_file, signature_name_file)
-else:
-    expression_list = sorted(os.listdir(expression_path))
-    for expression_file in tqdm(expression_list, desc="Calculate"):
-        expression = read_expression(os.path.join(expression_path, expression_file))
-        sub_result = profile_geneset_signature(expression, genesets_GMT_file, signature_name_file)
-        result = pd.concat([result, sub_result], axis=1)
-        print(f"{expression_file} calculate end.")
 
-prolifertion_filename = os.path.join(output_file_directory, f'{output_tag}.New_Tres.C13-C3.csv')
-result.to_csv(prolifertion_filename, sep='\t')
+    # filter the expression by celltype
+    celltype_list = [v.split('.')[0] for v in expression.columns]
+    if celltype_in_column not in celltype_list:
+        print(f"This dataset has not {celltype} celltype.")
+        sys.exit(1)
+    filter_flag = [v for v in expression.columns if v.split('.')[0] == celltype_in_column]
+    expression = expression[filter_flag]
+
+    if celltype == 'CD8T':
+        result = profile_geneset_signature(expression, genesets_GMT_file, signature_name_file)
+    elif celltype == 'Macrophage':
+        c13_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C13')
+        c3_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C3')
+        result = pd.concat([c13_result, c3_result])
+        new_row = result.loc["SMART_C13"] - result.loc["SMART_C3"]
+        new_row.name = 'Polarization'
+        result = pd.concat([result, new_row.to_frame().T])
+else:
+    # get the expression by celltype
+    expression_list = sorted(os.listdir(expression_path))
+    celltype_list = [v.split('.')[1] for v in expression_list]
+    if celltype_in_file not in celltype_list:
+        print(f"This dataset has not {celltype} celltype.")
+        sys.exit(1)
+    tag = expression_path.split('/')[-1]
+    expression = pd.read_csv(os.path.join(expression_path, f'{tag}.{celltype_in_file}.csv'), index_col=0)
+    
+    if celltype == 'CD8T':
+        result = profile_geneset_signature(expression, genesets_GMT_file, signature_name_file)
+    elif celltype == 'Macrophage':
+        c13_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C13')
+        c3_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C3')
+        result = pd.concat([c13_result, c3_result])
+        new_row = result.loc["SMART_C13"] - result.loc["SMART_C3"]
+        new_row.name = 'Polarization'
+        result = pd.concat([result, new_row.to_frame().T])
+
+response_filename = os.path.join(output_file_directory, f'{output_tag}.csv')
+result.to_csv(response_filename, sep='\t')
 print("Process end!")

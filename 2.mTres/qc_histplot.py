@@ -8,9 +8,9 @@ import seaborn as sns
 parser = argparse.ArgumentParser()
 parser.add_argument('-CT', "--celltype", type=str, default='CD8T', required=False, help="cell type")
 parser.add_argument('-R', "--qc_result_file", type=str, required=False, help="qc result file path",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3.qc_result/CD8T.qc_result.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.qc_result/CD8T.qc_result.csv')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3.qc_result')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.qc_result')
 args = parser.parse_args()
 
 celltype = args.celltype

@@ -10,10 +10,6 @@ do
     echo "Processing file: $expression_tag"
 
     output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/new_dataset_interaction
-    if [ ! -d ${output_file_directory} ]; then
-      mkdir ${output_file_directory}
-    fi
-
     response_data=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-1.Prolifertion/${expression_tag}.csv
     signaling_data=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-2.Signaling/${expression_tag}.csv
 
