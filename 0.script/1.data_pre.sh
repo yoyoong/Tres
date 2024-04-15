@@ -1,6 +1,5 @@
 h5_list=$(find /sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/0.raw_data -name "*.h5")
-
-h5_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/0.raw_data/BRCA_GSE161529_expression.h5
+# h5_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/0.raw_data/BRCA_GSE161529_expression.h5
 for h5_path in ${h5_list[@]}
 do
   h5_filename=$(basename "${h5_path}")
@@ -17,3 +16,18 @@ do
   sleep 1m
 done
 
+# pre_train_data2: split the gem data by cell type
+gem_list=$(find /sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data -maxdepth 1 -name "*.csv")
+for gem_path in ${gem_list[@]}
+do
+  gem_filename=$(basename "${gem_path}")
+  gem_tag=$(echo "${gem_filename}" | cut -d "." -f1)
+  echo "Processing file: ${gem_tag}"
+  output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data
+
+  log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/pre_train_data2/${gem_tag}.log
+  rm ${log_path}
+  echo "python3 /sibcb2/bioinformatics2/hongyuyang/code/Tres/1.data_pre/pre_train_data2.py -E ${gem_path} -D ${output_file_directory} -O ${gem_tag}" | \
+    qsub -q g5.q -N ${gem_tag} -V -cwd -o ${log_path} -j y
+  sleep 1m
+done

@@ -17,6 +17,7 @@ do
 done
 
 # Polarization
+celltype=Macrophage
 expression_dir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data
 expression_list=$(ls ${expression_dir})
 for expression_filename in ${expression_list[*]}
@@ -25,7 +26,6 @@ do
     output_tag=$(echo "${expression_filename}" | cut -d '.' -f1)
     echo "Processing file: ${output_tag}"
 
-    celltype=Macrophage
     if [ "${celltype}" == "CD8T" ]; then
       response_outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-1.Prolifertion
       genesets_GMT_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/SMaRT_geneset.txt
