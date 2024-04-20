@@ -2,7 +2,7 @@ dataset_list=("Zhang2021" "SadeFeldman2018" "Yost2019" "Fraietta2018")
 # get_bulk_profile
 for dataset in ${dataset_list[*]}
 do
-    log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/3.clinical_validation
+    log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/3.CD8T_analysis
     if [ ! -d ${log_directory} ]; then
       mkdir ${log_directory}
     fi
@@ -16,7 +16,7 @@ done
 # correlation_calculate
 for dataset in ${dataset_list[*]}
 do
-    log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/3.clinical_validation
+    log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/3.CD8T_analysis
     if [ ! -d ${log_directory} ]; then
       mkdir ${log_directory}
     fi

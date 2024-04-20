@@ -154,7 +154,7 @@ for sample, expression_sub in tqdm(expression_group, desc="Processing sample"):
         expression_sub = expression_sub.loc[flag_nonzero]
     y = (response_data.loc[response_key]).loc[expression_sub.columns]
 
-    for signaling_name in signaling_list:
+    for signaling_name in tqdm(signaling_list, desc="Processing signaling"):
         # regression scaffold
         X = pd.DataFrame(numpy.zeros((N, 4)), columns = ['const', 'pivot', 'partner', 'interaction'], index = expression_sub.columns)
         X.loc[:, 'const'] = 1 # d * 1

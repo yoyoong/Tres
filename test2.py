@@ -10,17 +10,17 @@ from sklearn.metrics import roc_auc_score
 from lifelines import CoxPHFitter
 from lifelines.fitters.kaplan_meier_fitter import KaplanMeierFitter
 
-signature_df1 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/Tres.prediction_signature', sep='\t', index_col=0)
-signature_df2 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/Tres_signature.negative.csv', index_col=0)
-gene_list = signature_df1.index.intersection(signature_df2.index)
-signature_df1_filtered = signature_df1.loc[gene_list]
-signature_df2_filtered = signature_df2.loc[gene_list]
-correlation, _ = pearsonr(numpy.array(signature_df1_filtered['Tres']), numpy.array(signature_df2_filtered['Tres']))
+# signature_df1 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/Tres.prediction_signature', sep='\t', index_col=0)
+# signature_df2 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/Tres_signature.negative.csv', index_col=0)
+# gene_list = signature_df1.index.intersection(signature_df2.index)
+# signature_df1_filtered = signature_df1.loc[gene_list]
+# signature_df2_filtered = signature_df2.loc[gene_list]
+# correlation, _ = pearsonr(numpy.array(signature_df1_filtered['Tres']), numpy.array(signature_df2_filtered['Tres']))
 
 data_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test'
 output_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/result'
 
-signature_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/Tres_signature.negative.csv'
+signature_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/Tres_signature.negative.csv'
 
 font_size = 30
 figure_width = 7
@@ -181,11 +181,11 @@ def main():
             flag = correlation.loc[:, 'Tres'] > 0
 
             kmf.fit(response.iloc[:, 0].loc[flag], response.iloc[:, 1].loc[flag], label='Tres > 0 (n=%d)' % sum(flag))
-            kmf.plot(ci_show=False, show_censors=True, linewidth=2, ls='-')
+            kmf.plot_survival_function(ci_show=False, show_censors=True, linewidth=2, ls='-')
 
             kmf.fit(response.iloc[:, 0].loc[~flag], response.iloc[:, 1].loc[~flag],
                     label='Tres < 0 (n=%d)' % sum(~flag))
-            kmf.plot(ci_show=False, show_censors=True, linewidth=2, ls='--')
+            kmf.plot_survival_function(ci_show=False, show_censors=True, linewidth=2, ls='--')
 
             plt.ylabel('Fraction')
             plt.xlabel(response.columns[0])

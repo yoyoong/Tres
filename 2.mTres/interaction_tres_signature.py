@@ -12,12 +12,12 @@ import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-I', "--interaction_path", type=str, required=False, help="Interaction result path.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/new_dataset_interaction')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Tres_signature')
 parser.add_argument('-C', "--cytokine_info", type=str, required=False, help="Name of signaling, str or .txt file"
-                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/cytokine_info.txt')
+                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/cytokine_info.txt')
 args = parser.parse_args()
 
 interaction_path = args.interaction_path
@@ -49,6 +49,7 @@ def get_dataset_cytokine_signature(dataset_name, interaction_data, cytokine):
     interaction_q.columns = ["%s.%s" % (dataset_name, '.'.join(v.split('.')[1:-1])) for v in interaction_q.columns]
     assert interaction_q.columns.value_counts().max() == 1  # if sample ID extraction is correct, must have no redundancy
 
+    # filter the q-value < 0.05
     # interaction_t[interaction_q > qthres] = pd.NA
     # dataset_signature = interaction_t.dropna(how='all')
 
@@ -60,7 +61,7 @@ def get_dataset_cytokine_signature(dataset_name, interaction_data, cytokine):
 
     return dataset_signature
 
-def get_median_signature(all_signature):
+def get_median_signature(all_signature, pn_flag, filter_flag):
     # filter the sample that are profiled by all signals
     common_col = None
     for signature in all_signature:
@@ -75,13 +76,16 @@ def get_median_signature(all_signature):
     median_signature = pd.concat(all_signature, axis=1, join='inner')
     median_signature = median_signature.groupby(median_signature.columns, axis=1).median()
     # output to file
-    median_signature_filename = os.path.join(output_file_directory, f'Median.signature.csv')
+    median_signature_filename = os.path.join(output_file_directory, f'Median_signature_{filter_flag}.{pn_flag}.csv')
     median_signature.to_csv(median_signature_filename)
 
     # filter the rate of valid median sample num < 0.5
-    # tres_signature = median_signature.dropna(how='all').median(axis=1)
-    tres_signature = median_signature.loc[median_signature.isnull().mean(axis=1) < 0.5].median(axis=1)
-    # tres_signature = median_signature.dropna().median(axis=1)
+    if filter_flag == 1:
+        tres_signature = median_signature.dropna(how='all').median(axis=1)
+    elif filter_flag == 2:
+        tres_signature = median_signature.loc[median_signature.isnull().mean(axis=1) < 0.5].median(axis=1)
+    elif filter_flag == 3:
+        tres_signature = median_signature.dropna().median(axis=1)
 
     tres_signature.name = 'Tres'
 
@@ -99,12 +103,11 @@ for interaction_filename in tqdm(interaction_list, desc='Processing interaction 
 
     for cytokine in cytokine_list:
         dataset_cytokine_signature = get_dataset_cytokine_signature(dataset_name, interaction_data, cytokine)
-        if dataset_cytokine_signature is None: continue
+        if dataset_cytokine_signature is None or len(dataset_cytokine_signature) < 1: continue
         if cytokine not in cytokine_signature_dict.keys():
             cytokine_signature_dict[cytokine] = [dataset_cytokine_signature]
         else:
             cytokine_signature_dict[cytokine].append(dataset_cytokine_signature)
-
 
 with open(os.path.join(output_file_directory, f'cytokine_signature_dict.pkl'), 'wb') as file:
     pickle.dump(cytokine_signature_dict, file)
@@ -128,8 +131,9 @@ for cytokine in tqdm(cytokine_list, desc='Processing cytokine list'):
     else:
         all_negative_signature.append(cytokine_signature)
 
-positive_tres_signature = get_median_signature(all_positive_signature)
-positive_tres_signature.to_csv(os.path.join(output_file_directory, f'Tres_signature.positive.csv'))
-negative_tres_signature = get_median_signature(all_negative_signature)
-negative_tres_signature.to_csv(os.path.join(output_file_directory, f'Tres_signature.negative.csv'))
+for filter_flag in [1, 2, 3]:
+    positive_tres_signature = get_median_signature(all_positive_signature, 'positive', filter_flag)
+    positive_tres_signature.to_csv(os.path.join(output_file_directory, f'Tres_signature_{filter_flag}.positive.csv'))
+    negative_tres_signature = get_median_signature(all_negative_signature, 'negative', filter_flag)
+    negative_tres_signature.to_csv(os.path.join(output_file_directory, f'Tres_signature_{filter_flag}.negative.csv'))
 print("Process end!")

@@ -18,6 +18,7 @@ done
 
 # pre_train_data2: split the gem data by cell type
 gem_list=$(find /sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data -maxdepth 1 -name "*.csv")
+gem_list=("/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data/CHOL_GSE138709.csv" "/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data/NSCLC_GSE127465.csv")
 for gem_path in ${gem_list[@]}
 do
   gem_filename=$(basename "${gem_path}")
@@ -28,6 +29,6 @@ do
   log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/pre_train_data2/${gem_tag}.log
   rm ${log_path}
   echo "python3 /sibcb2/bioinformatics2/hongyuyang/code/Tres/1.data_pre/pre_train_data2.py -E ${gem_path} -D ${output_file_directory} -O ${gem_tag}" | \
-    qsub -q g5.q -N ${gem_tag} -V -cwd -o ${log_path} -j y
+    qsub -q g5.q@fnode003.sibcb.ac.cn -N ${gem_tag} -V -cwd -o ${log_path} -j y
   sleep 1m
 done
