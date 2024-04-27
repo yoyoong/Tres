@@ -53,6 +53,12 @@ for dataset in dataset_list:
         sub_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, signature_name)
         result.append(sub_result)
     result = pd.concat(result)
+    # c13_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C13')
+    # c3_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C3')
+    # result = pd.concat([c13_result, c3_result])
+    # new_row = result.loc["SMART_C13"] - result.loc["SMART_C3"]
+    # new_row.name = 'Polarization'
+    # result = pd.concat([result, new_row.to_frame().T])
 
     response_filename = os.path.join(output_file_directory, f'{output_tag}.csv')
     result.to_csv(response_filename, sep='\t')

@@ -1,19 +1,24 @@
 import pandas as pd
-import numpy as np
-import os
-from sklearn.preprocessing import StandardScaler
+from lifelines import CoxPHFitter
 
+# 构建示例数据，假设有患者的生存时间、事件发生与一些协变量
+data = pd.DataFrame({
+    '生存时间': [60, 80, 120, 40, 200, 150, 90, 110],
+    '事件发生': [1, 1, 1, 0, 1, 1, 1, 1],
+    '年龄': [55, 65, 70, 45, 75, 60, 50, 68],
+    '性别': [1, 0, 1, 0, 1, 0, 1, 0],  # 1表示男性，0表示女性
+    '癌症类型': ['A', 'B', 'A', 'C', 'B', 'A', 'B', 'C'],
+    # 可以包含更多的协变量...
+})
 
-dataset_list = ["Zhang2021", "SadeFeldman2018", "Yost2019", "Fraietta2018"]
-for dataset in dataset_list:
-    output_tag = f'{dataset}.bulk_profile'
-    output_file_directory = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.clinical_data/{dataset}'
-    correlation_filename = os.path.join(output_file_directory, f'{output_tag}.csv')
+# 对分类变量进行独热编码
+data = pd.get_dummies(data, columns=['癌症类型'], drop_first=True)
 
-    gem_bulk = pd.read_csv(correlation_filename, index_col=0, header=0)
+# 创建CoxPHFitter对象
+cph = CoxPHFitter()
 
-    scaler = StandardScaler()
-    gem_bulk_normalized = pd.DataFrame(scaler.fit_transform(gem_bulk), columns=gem_bulk.columns)
+# 输入生存时间、事件发生和协变量数据
+cph.fit(data, duration_col='生存时间', event_col='事件发生', formula='年龄 + 性别')
 
-    gem_bulk.to_csv(os.path.join(output_file_directory, f'{output_tag}.normalized.csv'))
-
+# 打印模型的参数
+print(cph.summary)

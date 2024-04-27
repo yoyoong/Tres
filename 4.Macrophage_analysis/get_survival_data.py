@@ -9,8 +9,8 @@ from scipy.stats import pearsonr
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.metrics import mean_absolute_error
 
-# dataset_list = ["GSE14333", "GSE15654", "GSE17538", "GSE21374", "GSE28221", "GSE65218", "GSE65682", "GSE112927", "GSE33113", "GSE31595"]
-dataset_list = ["GSE31595"]
+dataset_list = ["GSE14333", "GSE15654", "GSE17538", "GSE21374", "GSE28221", "GSE65218", "GSE65682", "GSE112927", "GSE33113", "GSE31595"]
+# dataset_list = ["GSE31595"]
 for dataset in dataset_list:
     output_dir = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.Macrophage_analysis/{dataset}'
     gem_df = pd.read_csv(os.path.join(output_dir, f'{dataset}.gem.csv'), index_col=0, header=0)
@@ -111,10 +111,17 @@ for dataset in dataset_list:
     bulk_response_path = os.path.join(output_dir, f'{dataset}.bulk_response.csv')
     bulk_response_data = pd.read_csv(bulk_response_path, delimiter='\t', index_col=0)
     for signature_name in ['SMART_C13', 'SMART_C3', 'SMART_C14']:
+    # for signature_name in ['Polarization']:
         signature_key = signature_name.split('_')[-1] + '_response'
         survival_df[signature_key] = survival_df['sample_name'].apply(
             lambda x: bulk_response_data.loc[signature_name][x])
 
+        # cutoff = np.median(survival_df[signature_key])
+        # def get_response_group(x):
+        #     if x[signature_key] >= cutoff:
+        #         return "high"
+        #     else:
+        #         return "low"
         def get_response_group(x):
             if x[signature_key] >= 0:
                 return "t>0"
@@ -144,21 +151,20 @@ for dataset in dataset_list:
             # mse = mean_absolute_error(gem_data, tres_signature)
             # survival_df.loc[sample, f'mse'] = mse
 
-        def get_corr_group(x):
+        def get_corr_group1(x):
             if x[f'correlation_{flag}'] >= 0:
                 return "Corr>0"
             else:
                 return "Corr<0"
+        survival_df[f'corr_group_{flag}'] = survival_df.apply(lambda x: get_corr_group1(x), axis=1)
 
-        survival_df[f'corr_group_{flag}'] = survival_df.apply(lambda x: get_corr_group(x), axis=1)
-
-        # mse_mean = np.mean(survival_df['mse'])
-        # def get_mse_group(x):
-        #     if x[f'mse'] >= mse_mean:
-        #         return "mse_high"
+        # cutoff = np.median(survival_df[f'correlation_{flag}'])
+        # def get_corr_group2(x):
+        #     if x[f'correlation_{flag}'] >= cutoff:
+        #         return "Corr high"
         #     else:
-        #         return "mse_low"
-        # survival_df[f'mse_group'] = survival_df.apply(lambda x: get_mse_group(x), axis=1)
+        #         return "Corr low"
+        # survival_df[f'corr_group2_{flag}'] = survival_df.apply(lambda x: get_corr_group2(x), axis=1)
 
     survival_df.to_csv(os.path.join(output_dir, f'{dataset}.survival.csv'))
     print(f"{dataset} process end")
