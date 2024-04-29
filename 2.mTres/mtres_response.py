@@ -15,15 +15,15 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file or directory.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data/NSCLC_GSE127465')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024/Gao2024.Neutrophils.csv')
 parser.add_argument('-G', "--genesets_GMT_file", type=str, required=False, help="Background gene sets in GMT format.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/Tres_kegg.Neutrophils.txt')
 parser.add_argument('-S', "--signature_name_file", type=str, required=False, help="Names of the signatures, one name in one line.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature_name_file.Neutrophils2.txt')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature_name_file.Neutrophils.txt')
 parser.add_argument('-CT', "--celltype", type=str, default='Neutrophils', required=False, help="cell type")
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-3.Neutrophils_response2')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='NSCLC_GSE127465')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Gao2024')
 args = parser.parse_args()
 
 expression_path = args.expression_path

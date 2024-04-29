@@ -7,6 +7,7 @@ import h5py
 import scanpy as sc
 from scipy.sparse import coo_matrix
 from tqdm.autonotebook import tqdm
+from numpy import float16
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
@@ -25,6 +26,7 @@ if os.path.isdir(expression_path):
     print(f"This dataset don't need process.")
     sys.exit(1)
 gem_df = pd.read_csv(expression_path, index_col=0, header=0)
+print(f"Get gem success.")
 
 sample_list = []
 sample_flag = []
@@ -69,5 +71,11 @@ for col in non_zero_cols: # 对非零列进行归一化
 gem_filtered = np.log2(gem_filtered + 1)
 # centralize
 gem_filtered = gem_filtered.subtract(gem_filtered.mean(axis=1), axis=0)
-gem_filtered.to_csv(os.path.join(output_file_directory, f'{output_tag}.csv'))
+gem_filtered = gem_filtered.astype(float16)
+
+group_flag = ['.'.join(v.split('.')[1]) for v in gem_filtered.columns]
+gem_filtered_groupeby_sample = gem_filtered.groupby(group_flag)
+for sample, gem_sub in tqdm(gem_filtered_groupeby_sample, desc="Processing sample"):
+    gem_sub.to_csv(os.path.join(output_file_directory, f'{output_tag}.{sample}.csv'))
+
 print(f"{output_tag} process end")
