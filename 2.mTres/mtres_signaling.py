@@ -12,12 +12,12 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data/CRC_GSE166555.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024/Gao2024.Neutrophils.csv')
 parser.add_argument('-M', "--model_matrix_file", type=str, required=False, help="Quantitative signatures for cytokines.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature.centroid.expand')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-2.Signaling')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='CRC_GSE166555')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Gao2024.signaling')
 args = parser.parse_args()
 
 expression_path = args.expression_path
@@ -25,6 +25,7 @@ model_matrix_file = args.model_matrix_file
 output_file_directory = args.output_file_directory
 output_tag = args.output_tag
 
+print("Process start!")
 def compute_signaling(expression, model_matrix_file):
 	# read model matrix file
     if not os.path.exists(model_matrix_file):

@@ -23,7 +23,7 @@ parser.add_argument('-S', "--signature_name_file", type=str, required=False, hel
 parser.add_argument('-CT', "--celltype", type=str, default='Neutrophils', required=False, help="cell type")
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Gao2024')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Gao2024.response')
 args = parser.parse_args()
 
 expression_path = args.expression_path
@@ -40,6 +40,7 @@ else:
     celltype_in_column = celltype
     celltype_in_file = celltype
 
+print("Process start!")
 def profile_geneset_signature(expression, geneset_file, signature_name_file, signature_name):
     # all gene sets
     signature = []
