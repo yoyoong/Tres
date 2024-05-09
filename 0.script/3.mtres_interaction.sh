@@ -20,6 +20,8 @@ do
       response_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-2.Polarization/${output_tag}.csv
       signaling_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling/${output_tag}.csv
       log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/5-2.Macrophage_Interaction/${output_tag}.log
+    elif [ "${celltype}" == "Neutrophils" ]; then
+      # ignore
     fi
 
 

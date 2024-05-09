@@ -26,9 +26,9 @@ parser.add_argument('-D', "--output_file_directory", type=str, required=False, h
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='ALL_GSE153697')
 parser.add_argument('-C', "--count_threshold", type=int, default=100, required=False, help="Minimal number of cells needed for regression [100].")
-parser.add_argument('-RK', "--response_key", type=str, default='Polarization', required=False, help="Name of response in the data table [Proliferation].")
+parser.add_argument('-RK', "--response_key", type=str, default='Neutrophils_signature', required=False, help="Name of response in the data table [Proliferation].")
 parser.add_argument('-SK', "--signaling_key", type=str, default='', required=False, help="Name of signaling in the data") # if null, calculate all cytokine
-parser.add_argument('-CT', "--celltype", type=str, default='Macrophage', required=False, help="cell type")
+parser.add_argument('-CT', "--celltype", type=str, default='Neutrophils', required=False, help="cell type")
 args = parser.parse_args()
 
 expression_path = args.expression_path

@@ -1,6 +1,6 @@
+# compute Signaling
 expression_dir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data
 expression_list=$(ls ${expression_dir})
-# compute Signaling
 for expression_filename in ${expression_list[*]}
 do
     expression_path=${expression_dir}/${expression_filename}
@@ -16,7 +16,7 @@ do
     sleep 10s
 done
 
-# Polarization
+# compute Response
 celltype=Neutrophils
 expression_dir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data
 expression_list=$(ls ${expression_dir})

@@ -18,7 +18,7 @@ for i in {1..5}
 do
   expression_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024/Gao2024.Neutrophils.csv
   outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024
-  response_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024/Gao2024.signaling.csv
+  response_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024/Gao2024.response.csv
   signaling_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024/Gao2024.signaling.csv
   log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/test/mtres_interaction.log
   output_tag=Gao2024.interaction

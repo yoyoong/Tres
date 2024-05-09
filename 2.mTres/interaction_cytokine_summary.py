@@ -10,12 +10,12 @@ import scipy
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-I', "--interaction_path", type=str, required=False, help="Interaction result path.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024/Gao2024.interaction.csv')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Gao2024')
 parser.add_argument('-C', "--cytokine_info", type=str, required=False, help="Name of signaling, str or .txt file"
-                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/cytokine_info.txt')
+                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cytokine_info.Neutrophils.txt')
 parser.add_argument('-G', "--gene_annotation", type=str, required=False, help="Name of signaling, str or .txt file"
                     , default='/sibcb2/bioinformatics/iGenome/STAR/GENCODE/human_hg38/ID/tx2g.txt')
 args = parser.parse_args()
@@ -30,8 +30,13 @@ cytokine_info_df = pd.read_csv(cytokine_info, index_col=0)
 cytokine_list = cytokine_info_df.index.values.tolist()
 gene_annotation_df = pd.read_csv(gene_annotation, index_col=0, header=0, delimiter='\t')
 
+interaction_list = []
+if os.path.isdir(interaction_path):
+    interaction_list = sorted(os.listdir(interaction_path))
+else:
+    interaction_list.append(interaction_path)
+
 cytokine_summary_dict = {}
-interaction_list = sorted(os.listdir(interaction_path))
 for interaction_filename in tqdm(interaction_list, desc='Processing dataset'):
     interaction_filepath = os.path.join(interaction_path, interaction_filename)
     interaction_data = pd.read_csv(interaction_filepath, index_col=0)
