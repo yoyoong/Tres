@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/yangyue/project/240125_Tres/senecence/SPEED2_signaling.tsv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.neutrophil_data/Gao2024.Neutrophils.csv')
 parser.add_argument('-M', "--model_matrix_file", type=str, required=False, help="Quantitative signatures for cytokines.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature.centroid.expand')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",

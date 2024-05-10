@@ -11,12 +11,12 @@ import CytoSig
 warnings.filterwarnings("ignore")
 
 # dataset_list = ["GSE14333", "GSE15654", "GSE17538", "GSE21374", "GSE28221", "GSE65218", "GSE65682", "GSE112927", "GSE33113", "GSE31595"]
+celltype_list = ['Macrophage', 'Neutrophils']
 dataset_list = ['Braun2020', 'E-MTAB-6270', 'GSE106128', 'GSE135222', 'GSE67501', 'GSE91061', 'GSE93157_LUSC',
                 'GSE93157_nonsqNSCLC', 'Nathanson2017', 'PRJEB23709', 'PRJNA482620', 'GSE115821', 'GSE100797',
                 'GSE126044', 'GSE145996', 'GSE78220', 'GSE93157_HNSC', 'GSE93157_Melanoma', 'GSE96619', 'phs000452', 'PRJEB25780']
 for dataset in dataset_list:
     expression_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/5.Analysis_data/{dataset}/{dataset}.Express.tsv'
-    genesets_GMT_file = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/SMaRT_geneset.txt'
     output_file_directory = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/5.Analysis_data/{dataset}'
     output_tag = f'{dataset}.bulk_response'
 
@@ -60,7 +60,13 @@ for dataset in dataset_list:
     expression = expression.subtract(expression.mean(axis=1), axis=0)
 
     result = []
-    for signature_name in ['SMART_C13', 'SMART_C3']:
+    for celltype in celltype_list:
+        if celltype == 'Macrophage':
+            genesets_GMT_file = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/SMaRT_geneset.txt'
+            signature_name = 'SMART_C13'
+        elif celltype == 'Neutrophils':
+            genesets_GMT_file = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/Tres_kegg.Neutrophils.txt'
+            signature_name = 'Neutrophils_signature'
         sub_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, signature_name)
         result.append(sub_result)
     result = pd.concat(result)

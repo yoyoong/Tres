@@ -15,14 +15,14 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file or directory.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024/Gao2024.Neutrophils.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.neutrophil_data/Gao2024.Neutrophils.csv')
 parser.add_argument('-G', "--genesets_GMT_file", type=str, required=False, help="Background gene sets in GMT format.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/Tres_kegg.Neutrophils.txt')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/Tres_kegg.new_Neutrophils.txt')
 parser.add_argument('-S', "--signature_name_file", type=str, required=False, help="Names of the signatures, one name in one line.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature_name_file.Neutrophils.txt')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature_name_file.new_Neutrophils.txt')
 parser.add_argument('-CT', "--celltype", type=str, default='Neutrophils', required=False, help="cell type")
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.neutrophil_data')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Gao2024.response')
 args = parser.parse_args()
 
@@ -125,7 +125,7 @@ if not os.path.isdir(expression_path):
     if celltype == 'CD8T':
         result = profile_geneset_signature(expression, genesets_GMT_file, signature_name_file, 'Proliferation')
     elif celltype == 'Neutrophils':
-        result = profile_geneset_signature(expression, genesets_GMT_file, signature_name_file, 'Neutrophils_signature')
+        result = profile_geneset_signature(expression, genesets_GMT_file, signature_name_file, 'Neut_IFN-15')
     elif celltype == 'Macrophage':
         c13_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C13')
         c3_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C3')
@@ -146,7 +146,7 @@ else:
     if celltype == 'CD8T':
         result = profile_geneset_signature(expression, genesets_GMT_file, signature_name_file, 'Proliferation')
     elif celltype == 'Neutrophils':
-        result = profile_geneset_signature(expression, genesets_GMT_file, signature_name_file, 'Neutrophils_signature')
+        result = profile_geneset_signature(expression, genesets_GMT_file, signature_name_file, 'Neut_IFN-15')
     elif celltype == 'Macrophage':
         c13_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C13')
         c3_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C3')

@@ -22,7 +22,7 @@ parser.add_argument('-S', "--signaling_path", type=str, required=False, help="Pr
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.qc_result')
-parser.add_argument('-RK', "--response_key", type=str, default='Neutrophils_signature', required=False,
+parser.add_argument('-RK', "--response_key", type=str, default='Neut_IFN-15', required=False,
                     help="Name of response in the data table [Proliferation].")
 parser.add_argument('-CT', "--celltype", type=str, required=False, help="cell type", default='Neutrophils')
 parser.add_argument('-CTR', "--cohort_celltype_mapping_file", type=str, required=False, help="Celltype mapping rules file, .txt format",
@@ -59,6 +59,9 @@ if os.path.isfile(expression_path):
     # expression_data = read_expression(expression_filename)
     response_data = pandas.read_csv(response_path, sep='\t', index_col=0)
     signaling_data = pandas.read_csv(signaling_path, sep='\t', index_col=0)
+    if len(response_data) < 1 or len(signaling_data) < 1:
+        print(f'{dataset_tag} data is null')
+        ys.exit()
 
     # check data
     if response_key not in response_data.index:
@@ -118,6 +121,9 @@ else:
         # expression_data = read_expression(expression_filename)
         response_data = pandas.read_csv(response_filename, sep='\t', index_col=0)
         signaling_data = pandas.read_csv(signaling_filename, sep='\t', index_col=0)
+        if len(response_data) < 1 or len(signaling_data) < 1:
+            print(f'{dataset_tag} data is null')
+            continue
 
         # check data
         if response_key not in response_data.index:
