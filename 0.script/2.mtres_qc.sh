@@ -17,7 +17,7 @@ do
 done
 
 # compute Response
-celltype=Neutrophils
+celltype=NK
 expression_dir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data
 expression_list=$(ls ${expression_dir})
 for expression_filename in ${expression_list[*]}
@@ -29,23 +29,25 @@ do
     if [ "${celltype}" == "CD8T" ]; then
       response_outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-1.Prolifertion
       genesets_GMT_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/SMaRT_geneset.txt
-      signature_name_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature_name_file.CD8T.txt
       log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/qc/Prolifertion/${output_tag}.log
     elif [ "${celltype}" == "Macrophage" ]; then
       response_outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-2.Polarization
       genesets_GMT_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/SMaRT_geneset.txt
-      signature_name_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature_name_file.Macrophage.txt
       log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/3-2.Polarization/${output_tag}.log
     elif [ "${celltype}" == "Neutrophils" ]; then
       response_outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-3.Neutrophils_response
-      genesets_GMT_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/Tres_kegg.new_Neutrophils.txt
-      signature_name_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature_name_file.new_Neutrophils.txt
+      genesets_GMT_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/Tres_kegg.Neutrophils.txt
       log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/3-3.Neutrophils_response/${output_tag}.log
+    elif [ "${celltype}" == "NK" ]; then
+      response_outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-4.NK_response
+      genesets_GMT_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/Tres_kegg.NK.txt
+      log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/3-4.NK_response/${output_tag}.log
     fi
+    signature_name_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature_name_file.txt
 
     rm ${log_path}
     echo "python3 /sibcb2/bioinformatics2/hongyuyang/code/Tres/2.mTres/mtres_response.py -E ${expression_path} -G ${genesets_GMT_file} -S ${signature_name_file} -CT ${celltype} -D ${response_outdir} -O ${output_tag}" | \
-    qsub -q b1.q -N ${output_tag}.response -V -cwd -o ${log_path} -j y
+    qsub -q g5.q -N ${output_tag}.response -V -cwd -o ${log_path} -j y
     # sleep 10s
 done
 

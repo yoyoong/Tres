@@ -17,14 +17,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data')
 parser.add_argument('-R', "--response_path", type=str, required=False, help="Precomputed response data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-3.Neutrophils_response')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-4.NK_response')
 parser.add_argument('-S', "--signaling_path", type=str, required=False, help="Precomputed signaling data frame.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.qc_result')
-parser.add_argument('-RK', "--response_key", type=str, default='Neut_IFN-15', required=False,
+parser.add_argument('-RK', "--response_key", type=str, default='NK_signature', required=False,
                     help="Name of response in the data table [Proliferation].")
-parser.add_argument('-CT', "--celltype", type=str, required=False, help="cell type", default='Neutrophils')
+parser.add_argument('-CT', "--celltype", type=str, required=False, help="cell type", default='NK')
 parser.add_argument('-CTR', "--cohort_celltype_mapping_file", type=str, required=False, help="Celltype mapping rules file, .txt format",
                     default='')
 args = parser.parse_args()

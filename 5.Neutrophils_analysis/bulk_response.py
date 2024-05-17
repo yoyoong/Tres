@@ -66,7 +66,7 @@ for dataset in dataset_list:
             signature_name = 'SMART_C13'
         elif celltype == 'Neutrophils':
             genesets_GMT_file = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/Tres_kegg.Neutrophils.txt'
-            signature_name = 'Neutrophils_signature'
+            signature_name = 'Neut_IFN-15'
         sub_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, signature_name)
         result.append(sub_result)
     result = pd.concat(result)

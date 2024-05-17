@@ -10,9 +10,9 @@ import scipy
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-I', "--interaction_path", type=str, required=False, help="Interaction result path.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024/Gao2024.interaction.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.neutrophil_data/Gao2024.interaction.Neutrophils.csv')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.neutrophil_data')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Gao2024')
 parser.add_argument('-C', "--cytokine_info", type=str, required=False, help="Name of signaling, str or .txt file"
                     , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cytokine_info.Neutrophils.txt')
@@ -101,8 +101,8 @@ positive_gene_rank_df = positive_gene_rank_df.groupby(by=['GeneID'])[['SampleNum
 negative_gene_rank_df = negative_gene_rank_df.groupby(by=['GeneID'])[['SampleNum', 'Num(t>0,q<0.05)', 'Num(t<0,q<0.05)']].sum()
 
 # filter sample num
-positive_gene_rank_df = positive_gene_rank_df[positive_gene_rank_df['SampleNum'] >= 100]
-negative_gene_rank_df = negative_gene_rank_df[negative_gene_rank_df['SampleNum'] >= 100]
+# positive_gene_rank_df = positive_gene_rank_df[positive_gene_rank_df['SampleNum'] >= 100]
+# negative_gene_rank_df = negative_gene_rank_df[negative_gene_rank_df['SampleNum'] >= 100]
 
 # get rate
 positive_gene_rank_df["Rate(t>0,q<0.05)"] = positive_gene_rank_df["Num(t>0,q<0.05)"] / positive_gene_rank_df["SampleNum"]

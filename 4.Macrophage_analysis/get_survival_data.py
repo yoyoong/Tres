@@ -9,6 +9,7 @@ from scipy.stats import pearsonr
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.metrics import mean_absolute_error
 
+celltype = 'Neutrophils'
 dataset_list = ["GSE14333", "GSE15654", "GSE17538", "GSE21374", "GSE28221", "GSE65218", "GSE65682", "GSE112927", "GSE33113", "GSE31595"]
 # dataset_list = ["GSE31595"]
 for dataset in dataset_list:
@@ -131,7 +132,12 @@ for dataset in dataset_list:
 
     survival_df.set_index('sample_name', inplace=True)
     for flag in [1, 2, 3]:
-        tres_signature_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/Tres_signature_{flag}.positive.csv'
+        tres_signature_tag = f'Tres_signature_{flag}.positive'
+        if celltype == 'Macrophage':
+            tres_signature_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/{tres_signature_tag}.csv'
+        elif celltype == 'Neutrophils':
+            # tres_signature_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction/{tres_signature_tag}.csv'
+            tres_signature_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.neutrophil_data/{tres_signature_tag}.csv'
         tres_signature_df = pd.read_csv(tres_signature_path, index_col=0, header=0)
 
         # calculate the correlation of expression and tres signature
@@ -166,5 +172,5 @@ for dataset in dataset_list:
         #         return "Corr low"
         # survival_df[f'corr_group2_{flag}'] = survival_df.apply(lambda x: get_corr_group2(x), axis=1)
 
-    survival_df.to_csv(os.path.join(output_dir, f'{dataset}.survival.csv'))
+        survival_df.to_csv(os.path.join(output_dir, 'survival', f'{dataset}.{celltype}.{tres_signature_tag}.csv'))
     print(f"{dataset} process end")
