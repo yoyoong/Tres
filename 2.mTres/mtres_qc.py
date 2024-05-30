@@ -22,8 +22,6 @@ parser.add_argument('-S', "--signaling_path", type=str, required=False, help="Pr
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.qc_result')
-parser.add_argument('-RK', "--response_key", type=str, default='NK_signature', required=False,
-                    help="Name of response in the data table [Proliferation].")
 parser.add_argument('-CT', "--celltype", type=str, required=False, help="cell type", default='NK')
 parser.add_argument('-CTR', "--cohort_celltype_mapping_file", type=str, required=False, help="Celltype mapping rules file, .txt format",
                     default='')
@@ -32,7 +30,6 @@ args = parser.parse_args()
 expression_path = args.expression_path
 response_path = args.response_path
 signaling_path = args.signaling_path
-response_key = args.response_key
 celltype = args.celltype
 output_file_directory = args.output_file_directory
 cohort_celltype_mapping_file = args.cohort_celltype_mapping_file
@@ -43,6 +40,15 @@ if celltype == 'Macrophage':
 else:
     celltype_in_column = celltype
     celltype_in_file = celltype
+
+if celltype == 'CD8T':
+    response_key = 'Proliferation'
+elif celltype == 'Macrophage':
+    response_key = 'Polarization'
+elif celltype == 'Neutrophils':
+    response_key = 'Neut_IFN-15'
+elif celltype == 'NK':
+    response_key = 'NK_response'
 
 if cohort_celltype_mapping_file:
     all_mapping_rules_df = pd.read_csv(cohort_celltype_mapping_file, sep='\t')
@@ -105,6 +111,8 @@ if os.path.isfile(expression_path):
             qc_result.loc[len(qc_result)] = new_row
 else:
     expression_list = sorted(os.listdir(expression_path))
+    if celltype == 'Neutrophils':
+        expression_list.append('Gao2024')
     for expression_file in tqdm(expression_list, desc="Processing expression files"):
         expression_basename = os.path.basename(expression_file)
         file_suffix = ".pickle.gz"
@@ -112,7 +120,7 @@ else:
             file_suffix = ".csv"
         dataset_tag = expression_basename.split(file_suffix)[0]
 
-        expression_filename = os.path.join(expression_path, f'{dataset_tag}{file_suffix}')
+        # expression_filename = os.path.join(expression_path, f'{dataset_tag}{file_suffix}')
         response_filename = os.path.join(response_path, f'{dataset_tag}.csv')
         signaling_filename = os.path.join(signaling_path, f'{dataset_tag}.csv')
         if not os.path.exists(response_filename) or not os.path.exists(signaling_filename):

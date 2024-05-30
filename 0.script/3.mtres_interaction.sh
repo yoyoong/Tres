@@ -12,9 +12,9 @@ do
 
     if [ "${celltype}" == "CD8T" ]; then
       outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/dataset_interaction
-      response_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-1.Prolifertion/${output_tag}.csv
+      response_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-1.Proliferation/${output_tag}.csv
       signaling_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling/${output_tag}.csv
-      log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/qc/Prolifertion/${output_tag}.log
+      log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/qc/Proliferation/${output_tag}.log
     elif [ "${celltype}" == "Macrophage" ]; then
       outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction
       response_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-2.Polarization/${output_tag}.csv

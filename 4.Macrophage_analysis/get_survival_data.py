@@ -9,7 +9,7 @@ from scipy.stats import pearsonr
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.metrics import mean_absolute_error
 
-celltype = 'Neutrophils'
+celltype = 'CD8T'
 dataset_list = ["GSE14333", "GSE15654", "GSE17538", "GSE21374", "GSE28221", "GSE65218", "GSE65682", "GSE112927", "GSE33113", "GSE31595"]
 # dataset_list = ["GSE31595"]
 for dataset in dataset_list:
@@ -133,6 +133,8 @@ for dataset in dataset_list:
     survival_df.set_index('sample_name', inplace=True)
     for flag in [1, 2, 3]:
         tres_signature_tag = f'Tres_signature_{flag}.positive'
+        if celltype == 'CD8T':
+            tres_signature_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/{tres_signature_tag}.csv'
         if celltype == 'Macrophage':
             tres_signature_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/{tres_signature_tag}.csv'
         elif celltype == 'Neutrophils':

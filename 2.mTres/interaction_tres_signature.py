@@ -12,12 +12,12 @@ import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-I', "--interaction_path", type=str, required=False, help="Interaction result path.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.neutrophil_data/Gao2024.interaction.Neutrophils.csv')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/dataset_interaction')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.neutrophil_data')
+                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Tres_signature')
 parser.add_argument('-C', "--cytokine_info", type=str, required=False, help="Name of signaling, str or .txt file"
-                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cytokine_info.Neutrophils.txt')
+                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cytokine_info.CD8T.txt')
 args = parser.parse_args()
 
 interaction_path = args.interaction_path
@@ -55,7 +55,6 @@ def get_dataset_cytokine_signature(dataset_name, interaction_data, cytokine):
     # dataset_signature = interaction_t.dropna(how='all')
 
     # filter the rate of q-value < 0.05 smaller than frac_thres
-    DDDD = (interaction_q < qthres).mean()
     qvalue_flag = (interaction_q < qthres).mean() > frac_thres
     if qvalue_flag.sum() == 0:  # nothing to include
         return None

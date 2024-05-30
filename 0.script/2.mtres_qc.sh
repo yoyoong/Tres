@@ -27,9 +27,9 @@ do
     echo "Processing file: ${output_tag}"
 
     if [ "${celltype}" == "CD8T" ]; then
-      response_outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-1.Prolifertion
+      response_outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-1.Proliferation
       genesets_GMT_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/SMaRT_geneset.txt
-      log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/qc/Prolifertion/${output_tag}.log
+      log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/qc/Proliferation/${output_tag}.log
     elif [ "${celltype}" == "Macrophage" ]; then
       response_outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-2.Polarization
       genesets_GMT_file=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/SMaRT_geneset.txt
@@ -52,17 +52,15 @@ do
 done
 
 # compute qc
-celltype_list=("CD8T")
+celltype_list=("CD8T" "Macrophage" "Neutrophils")
 for celltype in ${celltype_list[*]}
 do
-    echo "Processing celltype: ${celltype}"
-
     output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.qc_result
     if [ ! -d ${output_file_directory} ]; then
       mkdir ${output_file_directory}
     fi
 
-    response_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-1.Prolifertion
+    response_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-1.Proliferation
     signaling_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2-2.Signaling
 
     log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/qc/${celltype}.mtres_qc.log
