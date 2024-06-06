@@ -154,7 +154,7 @@ else:
     elif celltype == 'Neutrophils':
         result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'Neut_IFN-15')
     elif celltype == 'NK':
-        result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'NK_signature')
+        result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'Hif1a_signature')
 
 response_filename = os.path.join(output_file_directory, f'{output_tag}.csv')
 result.to_csv(response_filename, sep='\t')

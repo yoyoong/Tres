@@ -11,19 +11,29 @@ warnings.filterwarnings("ignore")
 import pickle
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-I', "--interaction_path", type=str, required=False, help="Interaction result path.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/dataset_interaction')
-parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Tres_signature')
-parser.add_argument('-C', "--cytokine_info", type=str, required=False, help="Name of signaling, str or .txt file"
-                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cytokine_info.CD8T.txt')
+parser.add_argument('-CT', "--celltype", type=str, default='CD8T', required=False, help="cell type")
+parser.add_argument('-V', "--version", type=str, default='1', required=False, help="cytokine info version")
 args = parser.parse_args()
 
-interaction_path = args.interaction_path
-output_file_directory = args.output_file_directory
-output_tag = args.output_tag
-cytokine_info = args.cytokine_info
+celltype = args.celltype
+cytokine_info_version = args.version
+cytokine_info_version = '' if cytokine_info_version == '0' else f'_{cytokine_info_version}'
+cytokine_info_file = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cytokine_info{version}.{celltype}.txt'
+if celltype == "CD8T" :
+    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction'
+elif celltype == "Macrophage" :
+    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction'
+elif celltype == "Neutrophils" :
+    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction'
+elif celltype == "NK" :
+    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction'
+
+cytokine_info_df = pd.read_csv(cytokine_info, index_col=0)
+cytokine_list = cytokine_info_df.index.values.tolist()
 
 def get_dataset_cytokine_signature(dataset_name, interaction_data, cytokine):
     qthres = 0.05
@@ -61,9 +71,6 @@ def get_dataset_cytokine_signature(dataset_name, interaction_data, cytokine):
     dataset_signature = interaction_t.loc[:, qvalue_flag]
 
     return dataset_signature
-
-cytokine_info_df = pd.read_csv(cytokine_info, index_col=0)
-cytokine_list = cytokine_info_df.index.values.tolist()
 
 interaction_list = []
 if os.path.isdir(interaction_path):

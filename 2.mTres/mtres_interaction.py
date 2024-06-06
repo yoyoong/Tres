@@ -26,7 +26,6 @@ parser.add_argument('-D', "--output_file_directory", type=str, required=False, h
                     default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='ALL_GSE153697')
 parser.add_argument('-C', "--count_threshold", type=int, default=100, required=False, help="Minimal number of cells needed for regression [100].")
-parser.add_argument('-RK', "--response_key", type=str, default='NK_signature', required=False, help="Name of response in the data table [Proliferation].")
 parser.add_argument('-SK', "--signaling_key", type=str, default='', required=False, help="Name of signaling in the data") # if null, calculate all cytokine
 parser.add_argument('-CT', "--celltype", type=str, default='Neutrophils', required=False, help="cell type")
 args = parser.parse_args()
@@ -38,9 +37,17 @@ celltype_mapping_rules_file = args.celltype_mapping_rules_file
 output_file_directory = args.output_file_directory
 output_tag = args.output_tag
 count_threshold = args.count_threshold
-response_key = args.response_key
 signaling_key = args.signaling_key
 celltype = args.celltype
+
+if celltype == 'CD8T':
+    response_key = 'Proliferation'
+elif celltype == 'Macrophage':
+    response_key = 'Polarization'
+elif celltype == 'Neutrophils':
+    response_key = 'Neut_IFN-15'
+elif celltype == 'NK':
+    response_key = 'NK_signature'
 
 if celltype == 'Macrophage':
     celltype_in_column = 'Mono/Macro'
@@ -145,7 +152,7 @@ for sample, expression_sub in tqdm(expression_group, desc="Processing sample"):
     # filter the cell count
     N = expression_sub.shape[1]
     if N < count_threshold:
-        print(f"Sample:{sample} cell number is {N}, less than {count_threshold}.")
+        # print(f"Sample:{sample} cell number is {N}, less than {count_threshold}.")
         continue
 
     # remove rows all zeros
@@ -154,7 +161,7 @@ for sample, expression_sub in tqdm(expression_group, desc="Processing sample"):
         expression_sub = expression_sub.loc[flag_nonzero]
     y = (response_data.loc[response_key]).loc[expression_sub.columns]
 
-    for signaling_name in tqdm(signaling_list, desc="Processing signaling"):
+    for signaling_name in signaling_list:
         # regression scaffold
         X = pd.DataFrame(numpy.zeros((N, 4)), columns = ['const', 'pivot', 'partner', 'interaction'], index = expression_sub.columns)
         X.loc[:, 'const'] = 1 # d * 1

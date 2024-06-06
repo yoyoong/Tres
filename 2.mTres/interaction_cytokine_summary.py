@@ -9,25 +9,28 @@ warnings.filterwarnings("ignore")
 import scipy
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-I', "--interaction_path", type=str, required=False, help="Interaction result path.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.neutrophil_data/Gao2024.interaction.Neutrophils.csv')
-parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.neutrophil_data')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='Gao2024')
-parser.add_argument('-C', "--cytokine_info", type=str, required=False, help="Name of signaling, str or .txt file"
-                    , default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cytokine_info.Neutrophils.txt')
-parser.add_argument('-G', "--gene_annotation", type=str, required=False, help="Name of signaling, str or .txt file"
-                    , default='/sibcb2/bioinformatics/iGenome/STAR/GENCODE/human_hg38/ID/tx2g.txt')
+parser.add_argument('-CT', "--celltype", type=str, default='CD8T', required=False, help="cell type")
 args = parser.parse_args()
 
-interaction_path = args.interaction_path
-output_file_directory = args.output_file_directory
-output_tag = args.output_tag
-cytokine_info = args.cytokine_info
-gene_annotation = args.gene_annotation
+celltype = args.celltype
+model_matrix_file = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature.centroid.expand'
+gene_annotation = '/sibcb2/bioinformatics/iGenome/STAR/GENCODE/human_hg38/ID/tx2g.txt'
 
-cytokine_info_df = pd.read_csv(cytokine_info, index_col=0)
-cytokine_list = cytokine_info_df.index.values.tolist()
+if celltype == "CD8T" :
+    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction'
+elif celltype == "Macrophage" :
+    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction'
+elif celltype == "Neutrophils" :
+    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction'
+elif celltype == "NK" :
+    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction'
+
+model_matrix_file = pd.read_csv(model_matrix_file, sep='\t', index_col=0)
+all_cytokine_list = model_matrix_file.columns.values.tolist()
 gene_annotation_df = pd.read_csv(gene_annotation, index_col=0, header=0, delimiter='\t')
 
 interaction_list = []
@@ -42,7 +45,7 @@ for interaction_filename in tqdm(interaction_list, desc='Processing dataset'):
     interaction_data = pd.read_csv(interaction_filepath, index_col=0)
     dataset_name = os.path.basename(interaction_filepath).split('.')[0]
 
-    for cytokine in cytokine_list:
+    for cytokine in all_cytokine_list:
         # filter the cytokine
         cytokine_flag = [col for col in interaction_data.columns if col.split('.')[-1] == cytokine]
         interaction_cytokine_data = interaction_data[cytokine_flag].dropna(how='all')
@@ -76,57 +79,10 @@ for interaction_filename in tqdm(interaction_list, desc='Processing dataset'):
             new_df = cytokine_summary_dict[cytokine].add(cytokine_summary_df, fill_value=0)
             cytokine_summary_dict[cytokine] = new_df
 
-    # print(f'{interaction_filename} end')
-
-positive_gene_rank_df = pd.DataFrame(columns=['GeneID', 'SampleNum', 'Num(t>0,q<0.05)', 'Num(t<0,q<0.05)',
-                                     'Rate(t>0,q<0.05)', 'Rate(t<0,q<0.05)', 'Rank(t>0,q<0.05)', 'Rank(t<0,q<0.05)', 'mType'])
-negative_gene_rank_df = pd.DataFrame(columns=['GeneID', 'SampleNum', 'Num(t>0,q<0.05)', 'Num(t<0,q<0.05)',
-                                     'Rate(t>0,q<0.05)', 'Rate(t<0,q<0.05)', 'Rank(t>0,q<0.05)', 'Rank(t<0,q<0.05)', 'mType'])
-for cytokine in tqdm(cytokine_list, desc='Processing cytokine list'):
-    cytokine_summary_filename = os.path.join(output_file_directory, 'cytokine_summary', f'{cytokine}.summary.csv')
-    cytokine_summary = cytokine_summary_dict[cytokine].reset_index()
+# save the cytokine summary
+cytokine_summary_dir = os.path.join(output_file_directory, 'cytokine_summary')
+if not os.path.exists(cytokine_summary_dir):
+    os.mkdir(cytokine_summary_dir)
+for cytokine, cytokine_summary in cytokine_summary_dict.items():
+    cytokine_summary_filename = os.path.join(cytokine_summary_dir, f'{cytokine}.summary.csv')
     cytokine_summary.to_csv(cytokine_summary_filename)
-
-    # cytokine_summary_filename = os.path.join(output_file_directory, 'cytokine_summary', f'{cytokine}.summary.csv')
-    # cytokine_summary = pd.read_csv(cytokine_summary_filename)
-
-    cytokine_flag = cytokine_info_df.loc[cytokine]['flag']
-    if cytokine_flag == "+":
-        positive_gene_rank_df = pd.concat([positive_gene_rank_df, cytokine_summary], ignore_index=True)
-    else:
-        negative_gene_rank_df = pd.concat([negative_gene_rank_df, cytokine_summary], ignore_index=True)
-
-# merge the num
-positive_gene_rank_df = positive_gene_rank_df.groupby(by=['GeneID'])[['SampleNum', 'Num(t>0,q<0.05)', 'Num(t<0,q<0.05)']].sum()
-negative_gene_rank_df = negative_gene_rank_df.groupby(by=['GeneID'])[['SampleNum', 'Num(t>0,q<0.05)', 'Num(t<0,q<0.05)']].sum()
-
-# filter sample num
-# positive_gene_rank_df = positive_gene_rank_df[positive_gene_rank_df['SampleNum'] >= 100]
-# negative_gene_rank_df = negative_gene_rank_df[negative_gene_rank_df['SampleNum'] >= 100]
-
-# get rate
-positive_gene_rank_df["Rate(t>0,q<0.05)"] = positive_gene_rank_df["Num(t>0,q<0.05)"] / positive_gene_rank_df["SampleNum"]
-positive_gene_rank_df["Rate(t<0,q<0.05)"] = positive_gene_rank_df["Num(t<0,q<0.05)"] / positive_gene_rank_df["SampleNum"]
-negative_gene_rank_df["Rate(t>0,q<0.05)"] = negative_gene_rank_df["Num(t>0,q<0.05)"] / negative_gene_rank_df["SampleNum"]
-negative_gene_rank_df["Rate(t<0,q<0.05)"] = negative_gene_rank_df["Num(t<0,q<0.05)"] / negative_gene_rank_df["SampleNum"]
-
-# get rank
-positive_gene_rank_df["Rank(t>0,q<0.05)"] = scipy.stats.rankdata(positive_gene_rank_df["Rate(t>0,q<0.05)"] * -1, method='min')
-positive_gene_rank_df["Rank(t<0,q<0.05)"] = scipy.stats.rankdata(positive_gene_rank_df["Rate(t<0,q<0.05)"] * -1, method='min')
-negative_gene_rank_df["Rank(t>0,q<0.05)"] = scipy.stats.rankdata(negative_gene_rank_df["Rate(t>0,q<0.05)"] * -1, method='min')
-negative_gene_rank_df["Rank(t<0,q<0.05)"] = scipy.stats.rankdata(negative_gene_rank_df["Rate(t<0,q<0.05)"] * -1, method='min')
-
-# get type
-positive_gene_list = list(set(gene_annotation_df['Symbol']).intersection(positive_gene_rank_df.index))
-negative_gene_list = list(set(gene_annotation_df['Symbol']).intersection(negative_gene_rank_df.index))
-def merge_set_to_string(row):
-    return '/'.join(map(str, row))
-gene_mType = gene_annotation_df.groupby('Symbol')['mType'].agg(set).apply(merge_set_to_string)
-positive_gene_rank_df.loc[positive_gene_list, 'mType'] = gene_mType.loc[positive_gene_list]
-negative_gene_rank_df.loc[negative_gene_list, 'mType'] = gene_mType.loc[negative_gene_list]
-
-negative_gene_rank_filename = os.path.join(output_file_directory, f'Gene_rank.negative.csv')
-positive_gene_rank_filename = os.path.join(output_file_directory, f'Gene_rank.positive.csv')
-negative_gene_rank_df.to_csv(negative_gene_rank_filename)
-positive_gene_rank_df.to_csv(positive_gene_rank_filename)
-print("Process end!")

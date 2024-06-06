@@ -1,5 +1,5 @@
 # mtres_interaction
-celltype=NK
+celltype=CD8T
 expression_dir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data
 expression_list=$(ls ${expression_dir})
 # expression_list=("NSCLC_GSE176021_aPD1")
@@ -14,7 +14,7 @@ do
       outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/dataset_interaction
       response_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-1.Proliferation/${output_tag}.csv
       signaling_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling/${output_tag}.csv
-      log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/qc/Proliferation/${output_tag}.log
+      log_path=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/5-1.CD8T_Interaction/${output_tag}.log
     elif [ "${celltype}" == "Macrophage" ]; then
       outdir=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction
       response_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-2.Polarization/${output_tag}.csv
@@ -45,25 +45,18 @@ done
 
 
 # interaction_cytokine_summary
-cytokine_list=("IL6" "FGF2" "CXCL12" "IL1B" "TRAIL" "TGFB1" "TGFB2" "BDNF" "IL17A" "IL12" "IL2" "IL15")
-for cytokine in ${cytokine_list[*]}
+celltype_list=("CD8T" "Macrophage" "Neutrophils" "NK")
+for celltype in ${celltype_list[*]}
 do
-    echo "Processing cytokine: ${cytokine}"
+    echo "Processing celltype: ${celltype}"
 
-    interaction_path=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/dataset_interaction
-    output_file_directory=/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/cytokine_summary
-    if [ ! -d ${output_file_directory} ]; then
-      mkdir ${output_file_directory}
-    fi
-    output_tag=${cytokine}.summary
-
-    log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/data_process
+    log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/interaction_cytokine_summary
     if [ ! -d ${log_directory} ]; then
       mkdir ${log_directory}
     fi
-    log_filename=${log_directory}/${output_tag}.log
+    log_filename=${log_directory}/${celltype}.log
     rm ${log_filename}
 
-    echo "python3 /sibcb2/bioinformatics2/hongyuyang/code/Tres/data_process/interaction_cytokine_summary.py -I ${interaction_path} -D ${output_file_directory} -O ${output_tag} -C ${cytokine}" | \
-      qsub -q g1.q -N ${output_tag} -V -cwd -o ${log_filename} -j y
+    echo "python3 /sibcb2/bioinformatics2/hongyuyang/code/Tres/2.mTres/interaction_cytokine_summary.py -CT ${celltype}" | \
+      qsub -q g5.q -N ${celltype} -V -cwd -o ${log_filename} -j y
 done

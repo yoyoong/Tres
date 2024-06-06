@@ -14,10 +14,11 @@ from scipy.stats import pearsonr
 
 warnings.filterwarnings("ignore")
 
-celltype = 'Neutrophils'
+celltype = 'Hif1a'
 expression_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data'
 signaling_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling'
 output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.qc_result'
+count_threshold = 100
 cohort_celltype_mapping_file = ''
 
 if celltype == 'CD8T':
@@ -31,7 +32,11 @@ elif celltype == 'Neutrophils':
     response_key = 'Neut_IFN-15'
 elif celltype == 'NK':
     response_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-4.NK_response'
-    response_key = 'NK_response'
+    response_key = 'NK_signature'
+elif celltype == 'NFkB' or celltype == 'Hif1a':
+    signaling_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-4.NK_response'
+    response_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-4-2.{celltype}_response'
+    response_key = f'{celltype}_signature'
 
 if celltype == 'Macrophage':
     celltype_in_column = 'Mono/Macro'
@@ -83,7 +88,7 @@ if os.path.isfile(expression_path):
             if dataset_celltype != sample_celltype: continue  # filter the cell type
             response = np.array((response_data.loc[response_key]).loc[response_sub.columns])
             signaling = np.array(signaling_data.loc[signaling_key, response_sub.columns])
-            if len(response) < 2 or len(signaling) < 2:
+            if len(response) < count_threshold or len(signaling) < count_threshold:
                 # print("Length of response or signaling < 2.")
                 continue
 
@@ -131,17 +136,20 @@ else:
             dataset_celltype = celltype_in_column
 
         for signaling_key in signaling_data.index:
+            if signaling_key == 'study bias': continue
             flag_group = ['.'.join(v.split('.')[:2]) for v in response_data.columns]
             response_group = response_data.groupby(flag_group, axis=1)
             for title, response_sub in response_group:
                 sample_celltype = title.split(".")[0].replace(":", "")
-                if dataset_celltype != sample_celltype: continue # filter the cell type
+                # if dataset_celltype != sample_celltype: continue # filter the cell type
                 response = np.array((response_data.loc[response_key]).loc[response_sub.columns])
                 signaling = np.array(signaling_data.loc[signaling_key, response_sub.columns])
-                if len(response) < 2 or len(signaling) < 2:
+                if len(response) < count_threshold or len(signaling) < count_threshold:
                     # print("Length of response or signaling < 2.")
                     continue
 
+                response = np.nan_to_num(response, nan=0.0, copy=True)
+                signaling = np.nan_to_num(signaling, nan=0.0, copy=True)
                 correlation, pvalue = pearsonr(response, signaling)
                 new_row = {'Dataset': dataset_tag, 'SampleID': title, 'Cytokine': signaling_key, 'correlation': correlation, 'p': pvalue}
                 qc_result.loc[len(qc_result)] = new_row
