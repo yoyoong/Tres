@@ -9,19 +9,25 @@ from tqdm.autonotebook import tqdm
 from scipy.stats import pearsonr
 from scipy.stats import normaltest,shapiro
 
-celltype_list = ['CD8T', 'Macrophage', 'Neutrophils']
+celltype_list = ['CD8T', 'Macrophage', 'Neutrophils', 'NK']
 dataset_list = ["Zhang2021", "SadeFeldman2018", "Yost2019", "Fraietta2018"]
 
 for celltype in celltype_list:
+    if celltype == "CD8T":
+        tres_signature_dir = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/Tres_signature'
+    elif celltype == "Macrophage":
+        tres_signature_dir = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/Tres_signature'
+    elif celltype == "Neutrophils":
+        tres_signature_dir = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction/Tres_signature'
+    elif celltype == "NK":
+        tres_signature_dir = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction/Tres_signature'
+
     for dataset in dataset_list:
-        tres_tag = 'Tres_signature_2.negative'
-        if celltype == 'CD8T':
-            tres_signature_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/{tres_tag}.csv'
-        elif celltype == 'Macrophage':
-            tres_signature_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/{tres_tag}.csv'
-        elif celltype == 'Neutrophils':
-            tres_signature_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.neutrophil_data/{tres_tag}.csv'
-            # tres_signature_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction/{tres_tag}.positive.csv'
+        cytokine_info_version = 1
+        cytokine_signature_version = 1
+        sample_filter_version = 1
+        version = f'{cytokine_info_version}_{cytokine_signature_version}_{sample_filter_version}'
+        tres_signature_path = os.path.join(tres_signature_dir, f'Tres_signature_{version}.negative.csv')
 
         sample_annotation_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.CD8T_analysis/{dataset}/{dataset}.sample_annotation.txt'
         output_file_directory = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.CD8T_analysis'

@@ -31,7 +31,6 @@ elif celltype == "NK" :
 
 model_matrix_file = pd.read_csv(model_matrix_file, sep='\t', index_col=0)
 all_cytokine_list = model_matrix_file.columns.values.tolist()
-gene_annotation_df = pd.read_csv(gene_annotation, index_col=0, header=0, delimiter='\t')
 
 interaction_list = []
 if os.path.isdir(interaction_path):

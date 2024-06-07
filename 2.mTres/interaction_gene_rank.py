@@ -9,14 +9,13 @@ warnings.filterwarnings("ignore")
 import scipy
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-CT', "--celltype", type=str, default='CD8T', required=False, help="cell type")
-parser.add_argument('-V', "--version", type=str, default='1', required=False, help="cytokine info version")
+parser.add_argument('-CT', "--celltype", type=str, default='Macrophage', required=False, help="cell type")
+parser.add_argument('-CIV', "--cytokine_info_version", type=int, default='0', required=False, help="cytokine info version")
 args = parser.parse_args()
 
 celltype = args.celltype
-cytokine_info_version = args.version
-cytokine_info_version = '' if cytokine_info_version == '0' else f'_{cytokine_info_version}'
-cytokine_info_file = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cytokine_info{version}.{celltype}.txt'
+cytokine_info_version = args.cytokine_info_version
+cytokine_info_file = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cytokine_info_{cytokine_info_version}.{celltype}.txt'
 gene_annotation = '/sibcb2/bioinformatics/iGenome/STAR/GENCODE/human_hg38/ID/tx2g.txt'
 if celltype == "CD8T" :
     output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction'
@@ -77,8 +76,8 @@ negative_gene_rank_df.loc[negative_gene_list, 'mType'] = gene_mType.loc[negative
 gene_rank_dir = os.path.join(output_file_directory, 'gene_rank')
 if not os.path.exists(gene_rank_dir):
     os.mkdir(gene_rank_dir)
-negative_gene_rank_filename = os.path.join(gene_rank_dir, f'Gene_rank{version}.negative.csv')
-positive_gene_rank_filename = os.path.join(gene_rank_dir, f'Gene_rank{version}.positive.csv')
+negative_gene_rank_filename = os.path.join(gene_rank_dir, f'Gene_rank_{cytokine_info_version}.negative.csv')
+positive_gene_rank_filename = os.path.join(gene_rank_dir, f'Gene_rank_{cytokine_info_version}.positive.csv')
 negative_gene_rank_df.to_csv(negative_gene_rank_filename)
 positive_gene_rank_df.to_csv(positive_gene_rank_filename)
 print("Process end!")

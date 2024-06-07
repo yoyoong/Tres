@@ -60,3 +60,50 @@ do
     echo "python3 /sibcb2/bioinformatics2/hongyuyang/code/Tres/2.mTres/interaction_cytokine_summary.py -CT ${celltype}" | \
       qsub -q g5.q -N ${celltype} -V -cwd -o ${log_filename} -j y
 done
+
+# interaction_cytokine_signature
+celltype_list=("CD8T" "Macrophage" "Neutrophils" "NK")
+cytokine_signature_version_list=(0 1 2)
+for celltype in ${celltype_list[*]}
+do
+    for cytokine_signature_version in ${cytokine_signature_version_list[*]}
+    do
+        log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/interaction_cytokine_signature
+        if [ ! -d ${log_directory} ]; then
+          mkdir ${log_directory}
+        fi
+        log_filename=${log_directory}/${celltype}_${cytokine_signature_version}.log
+        rm ${log_filename}
+
+        echo "python3 /sibcb2/bioinformatics2/hongyuyang/code/Tres/2.mTres/interaction_cytokine_signature.py -CT ${celltype} -CSV ${cytokine_signature_version}"| \
+          qsub -q g5.q -N ${celltype}_${cytokine_signature_version} -V -cwd -o ${log_filename} -j y
+    done
+done
+
+# interaction_cytokine_signature
+celltype_list=("CD8T" "Macrophage" "Neutrophils" "NK")
+cytokine_info_version_list=(0 1)
+cytokine_signature_version_list=(0 1 2)
+sample_filter_version_list=(0 1 2)
+for celltype in ${celltype_list[*]}
+do
+    for cytokine_info_version in ${cytokine_info_version_list[*]}
+    do
+        for cytokine_signature_version in ${cytokine_signature_version_list[*]}
+        do
+            for sample_filter_version in ${sample_filter_version_list[*]}
+            do
+                log_directory=/sibcb2/bioinformatics2/hongyuyang/code/Tres/log/2.tisch_data/interaction_tres_signature_new
+                if [ ! -d ${log_directory} ]; then
+                  mkdir ${log_directory}
+                fi
+                tag=${celltype}_${cytokine_info_version}_${cytokine_signature_version}_${sample_filter_version}.log
+                log_filename=${log_directory}/${celltype}_${tag}.log
+                rm ${log_filename}
+
+                echo "python3 /sibcb2/bioinformatics2/hongyuyang/code/Tres/2.mTres/interaction_tres_signature_new.py -CT ${celltype} -CIV ${cytokine_info_version} -CSV ${cytokine_signature_version} -SFV ${sample_filter_version}"| \
+                  qsub -q g5.q -N ${tag} -V -cwd -o ${log_filename} -j y
+            done
+        done
+    done
+done
