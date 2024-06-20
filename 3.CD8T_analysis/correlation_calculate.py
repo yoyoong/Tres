@@ -27,7 +27,8 @@ for celltype in celltype_list:
         cytokine_signature_version = 1
         sample_filter_version = 1
         version = f'{cytokine_info_version}_{cytokine_signature_version}_{sample_filter_version}'
-        tres_signature_path = os.path.join(tres_signature_dir, f'Tres_signature_{version}.negative.csv')
+        tres_signature_positive_path = os.path.join(tres_signature_dir, f'Tres_signature_{version}.positive.csv')
+        tres_signature_negative_path = os.path.join(tres_signature_dir, f'Tres_signature_{version}.negative.csv')
 
         sample_annotation_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.CD8T_analysis/{dataset}/{dataset}.sample_annotation.txt'
         output_file_directory = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/3.CD8T_analysis'
@@ -43,7 +44,8 @@ for celltype in celltype_list:
         elif dataset == 'Fraietta2018':
             bulk_profile_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/CD19CAR_Infusion.CAR_Fraietta2018_CLL.csv'
 
-        tres_signature_df = pd.read_csv(tres_signature_path, index_col=0)
+        tres_signature_positive = pd.read_csv(tres_signature_positive_path, index_col=0)
+        tres_signature_negative = pd.read_csv(tres_signature_negative_path, index_col=0)
 
         # filter top and down 5000 genes
         # top_rows = tres_signature_df[tres_signature_df['Tres'].isin(tres_signature_df['Tres'].nlargest(10000))]
@@ -55,26 +57,32 @@ for celltype in celltype_list:
         # top_positive_genes = gene_rank_df[gene_rank_df['Rank(t>0,q<0.05)'] < 5000].index
         # top_negative_genes = gene_rank_df[gene_rank_df['Rank(t<0,q<0.05)'] < 3000].index
         # tres_signature_df = tres_signature_df.loc[tres_signature_df.index.intersection(top_positive_genes)]
+        def calculate_correlation(bulk_profile_df, tres_signature_df):
+            gene_list = bulk_profile_df.index.intersection(tres_signature_df.index)  # common gene list
+
+            tres_signature_filtered = tres_signature_df.loc[gene_list]
+            bulk_profile_filtered = bulk_profile_df.loc[gene_list]
+            tres_signature = tres_signature_filtered['Tres']
+
+            # sample_annotation_df = pd.read_csv(sample_annotation_path, delimiter='\t', index_col=0)
+            # sample_list = sample_annotation_df.index.values.tolist()
+
+            correlation_df = pd.DataFrame(columns=['sample', 'correlation'])
+            for sample in bulk_profile_df.columns.values:
+                bulk_profile_data = bulk_profile_filtered[sample]
+                correlation, _ = pearsonr(np.array(bulk_profile_data), np.array(tres_signature))
+
+                new_row = pd.Series({'sample': sample, 'correlation': correlation})
+                correlation_df = pd.concat([correlation_df, new_row.to_frame().T])
+
+            correlation_df.set_index('sample', inplace=True)
+            return correlation_df
 
         bulk_profile_df = pd.read_csv(bulk_profile_path, index_col=0)
-        gene_list = bulk_profile_df.index.intersection(tres_signature_df.index) # common gene list
+        correlation_positive_df = calculate_correlation(bulk_profile_df, tres_signature_positive)
+        correlation_negative_df = calculate_correlation(bulk_profile_df, tres_signature_negative)
 
-        tres_signature_filtered = tres_signature_df.loc[gene_list]
-        bulk_profile_filtered = bulk_profile_df.loc[gene_list]
-        tres_signature = tres_signature_filtered['Tres']
-
-        # sample_annotation_df = pd.read_csv(sample_annotation_path, delimiter='\t', index_col=0)
-        # sample_list = sample_annotation_df.index.values.tolist()
-
-        correlation_df = pd.DataFrame(columns=['sample', 'correlation'])
-        for sample in bulk_profile_df.columns.values:
-            bulk_profile_data = bulk_profile_filtered[sample]
-            correlation, _ = pearsonr(np.array(bulk_profile_data), np.array(tres_signature))
-
-            new_row = pd.Series({'sample': sample, 'correlation': correlation})
-            correlation_df = pd.concat([correlation_df, new_row.to_frame().T])
-
-        correlation_df.set_index('sample', inplace=True)
+        correlation_df = correlation_negative_df - correlation_positive_df
         correlation_filename = os.path.join(output_file_directory, f'{output_tag}.csv')
         correlation_df.to_csv(correlation_filename)
     print(f"{celltype} process end")

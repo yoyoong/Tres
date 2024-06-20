@@ -12,9 +12,9 @@ import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-CT', "--celltype", type=str, default='CD8T', required=False, help="cell type")
-parser.add_argument('-CIV', "--cytokine_info_version", type=int, default='1', required=False, help="cytokine info version")
-parser.add_argument('-CSV', "--cytokine_signature_version", type=int, default='2', required=False, help="cytokine signature version")
-parser.add_argument('-SFV', "--sample_filter_version", type=int, default='0', required=False, help="sample filter version")
+parser.add_argument('-CIV', "--cytokine_info_version", type=int, default='2', required=False, help="cytokine info version")
+parser.add_argument('-CSV', "--cytokine_signature_version", type=int, default='1', required=False, help="cytokine signature version")
+parser.add_argument('-SFV', "--sample_filter_version", type=int, default='1', required=False, help="sample filter version")
 args = parser.parse_args()
 
 celltype = args.celltype

@@ -81,8 +81,9 @@ do
 done
 
 # interaction_cytokine_signature
-celltype_list=("CD8T" "Macrophage" "Neutrophils" "NK")
-cytokine_info_version_list=(0 1)
+# celltype_list=("CD8T" "Macrophage" "Neutrophils" "NK")
+celltype_list=("Neutrophils")
+cytokine_info_version_list=(2)
 cytokine_signature_version_list=(0 1 2)
 sample_filter_version_list=(0 1 2)
 for celltype in ${celltype_list[*]}
