@@ -3,10 +3,11 @@ import pandas as pd
 import os
 from tqdm.autonotebook import tqdm
 
-rawdata_dir = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/6.NK_analysis/TCGA-SKCM/rawdata'
-metadata_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/6.NK_analysis/TCGA-SKCM/metadata.json'
-clinical_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/6.NK_analysis/TCGA-SKCM/clinical.tsv'
-outputdir = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/6.NK_analysis/TCGA-SKCM'
+dataset = 'TCGA-CESC'
+rawdata_dir = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/6.NK_analysis/{dataset}/rawdata'
+metadata_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/6.NK_analysis/{dataset}/metadata.json'
+clinical_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/6.NK_analysis/{dataset}/clinical.tsv'
+outputdir = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/6.NK_analysis/{dataset}'
 
 metadata = pd.read_json(metadata_path)
 rawdata_files = os.listdir(rawdata_dir)

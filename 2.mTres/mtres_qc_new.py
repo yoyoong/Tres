@@ -14,7 +14,7 @@ from scipy.stats import pearsonr
 
 warnings.filterwarnings("ignore")
 
-celltype = 'Hif1a'
+celltype = 'NK'
 expression_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data'
 signaling_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling'
 output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.qc_result'
@@ -62,7 +62,7 @@ if os.path.isfile(expression_path):
     signaling_data = pandas.read_csv(signaling_path, sep='\t', index_col=0)
     if len(response_data) < 1 or len(signaling_data) < 1:
         print(f'{dataset_tag} data is null')
-        ys.exit()
+        sys.exit()
 
     # check data
     if response_key not in response_data.index:

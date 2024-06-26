@@ -37,13 +37,16 @@ output_tag = args.output_tag
 
 all_signature_name = pd.read_csv(signature_name_file, index_col=0, header=0)
 geneset_name = list(pd.Series(all_signature_name.loc[celltype]['signature']))
+real_celltype = celltype
+if "_" in real_celltype:
+    real_celltype = real_celltype.split("_")[0]
 
-if celltype == 'Macrophage':
+if real_celltype == 'Macrophage':
     celltype_in_column = 'Mono/Macro'
     celltype_in_file = 'Mono_Macro'
 else:
-    celltype_in_column = celltype
-    celltype_in_file = celltype
+    celltype_in_column = real_celltype
+    celltype_in_file = real_celltype
 
 print("Process start!")
 def profile_geneset_signature(expression, geneset_file, geneset_name, signature_name):
@@ -107,54 +110,33 @@ def profile_macrophage_geneset_signature(expression, geneset_file, signature_nam
 
     return result[2]
 
+
 result = pd.DataFrame()
-if not os.path.isdir(expression_path):
-    expression = read_expression(expression_path)
+# get the expression by celltype
+expression_list = sorted(os.listdir(expression_path))
+celltype_list = [v.split('.')[1] for v in expression_list]
+if celltype_in_file not in celltype_list:
+    print(f"This dataset has not {celltype_in_file} celltype.")
+    sys.exit(1)
+tag = expression_path.split('/')[-1]
+expression = pd.read_csv(os.path.join(expression_path, f'{tag}.{celltype_in_file}.csv'), index_col=0)
 
-    # filter the expression by celltype
-    celltype_list = [v.split('.')[0] for v in expression.columns]
-    if celltype_in_column not in celltype_list:
-        print(f"This dataset has not {celltype} celltype.")
-        sys.exit(1)
-    filter_flag = [v for v in expression.columns if v.split('.')[0] == celltype_in_column]
-    expression = expression[filter_flag]
+if celltype == 'CD8T':
+    result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'Proliferation')
+elif celltype == 'Macrophage':
+    c13_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C13')
+    c3_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C3')
+    result = pd.concat([c13_result, c3_result])
+    new_row = result.loc["SMART_C13"] - result.loc["SMART_C3"]
+    new_row.name = 'Polarization'
+    result = pd.concat([result, new_row.to_frame().T])
+elif celltype == 'Neutrophils':
+    result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'Neut_IFN-15')
+elif celltype == 'NK':
+    result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'NK_signature')
+elif celltype == 'NK_act':
+    result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'NK_act_signature')
 
-    if celltype == 'CD8T':
-        result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'Proliferation')
-    elif celltype == 'Macrophage':
-        c13_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C13')
-        c3_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C3')
-        result = pd.concat([c13_result, c3_result])
-        new_row = result.loc["SMART_C13"] - result.loc["SMART_C3"]
-        new_row.name = 'Polarization'
-        result = pd.concat([result, new_row.to_frame().T])
-    elif celltype == 'Neutrophils':
-        result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'Neut_IFN-15')
-    elif celltype == 'NK':
-        result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'NK_signature')
-else:
-    # get the expression by celltype
-    expression_list = sorted(os.listdir(expression_path))
-    celltype_list = [v.split('.')[1] for v in expression_list]
-    if celltype_in_file not in celltype_list:
-        print(f"This dataset has not {celltype} celltype.")
-        sys.exit(1)
-    tag = expression_path.split('/')[-1]
-    expression = pd.read_csv(os.path.join(expression_path, f'{tag}.{celltype_in_file}.csv'), index_col=0)
-
-    if celltype == 'CD8T':
-        result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'Proliferation')
-    elif celltype == 'Macrophage':
-        c13_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C13')
-        c3_result = profile_macrophage_geneset_signature(expression, genesets_GMT_file, 'SMART_C3')
-        result = pd.concat([c13_result, c3_result])
-        new_row = result.loc["SMART_C13"] - result.loc["SMART_C3"]
-        new_row.name = 'Polarization'
-        result = pd.concat([result, new_row.to_frame().T])
-    elif celltype == 'Neutrophils':
-        result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'Neut_IFN-15')
-    elif celltype == 'NK':
-        result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'Hif1a_signature')
 
 response_filename = os.path.join(output_file_directory, f'{output_tag}.csv')
 result.to_csv(response_filename, sep='\t')
