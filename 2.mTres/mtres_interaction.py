@@ -48,13 +48,19 @@ elif celltype == 'Neutrophils':
     response_key = 'Neut_IFN-15'
 elif celltype == 'NK':
     response_key = 'NK_signature'
+elif celltype == 'NK_act':
+    response_key = 'NK_act_signature'
+
+real_celltype = celltype
+if "_" in real_celltype:
+    real_celltype = real_celltype.split("_")[0]
 
 if celltype == 'Macrophage':
     celltype_in_column = 'Mono/Macro'
     celltype_in_file = 'Mono_Macro'
 else:
-    celltype_in_column = celltype
-    celltype_in_file = celltype
+    celltype_in_column = real_celltype
+    celltype_in_file = real_celltype
 
 err_tol = 1e-8
 def interaction_test(expression, X, y):
@@ -129,7 +135,7 @@ else:
     expression_list = os.listdir(expression_path)
     celltype_list = [os.path.basename(v).split('.')[1] for v in expression_list]
     if celltype_in_file not in celltype_list:
-        print(f"This dataset has not {celltype} celltype.")
+        print(f"This dataset has not {celltype_in_file} celltype.")
         sys.exit(1)
 
     tag = expression_path.split('/')[-1]

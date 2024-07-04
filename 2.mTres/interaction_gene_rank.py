@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore")
 import scipy
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-CT', "--celltype", type=str, default='Macrophage', required=False, help="cell type")
+parser.add_argument('-CT', "--celltype", type=str, default='NK', required=False, help="cell type")
 parser.add_argument('-CIV', "--cytokine_info_version", type=int, default='0', required=False, help="cytokine info version")
 args = parser.parse_args()
 
@@ -25,6 +25,8 @@ elif celltype == "Neutrophils" :
     output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction'
 elif celltype == "NK" :
     output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction'
+elif celltype == "NK_act" :
+    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4-0.NK_act_Interaction'
 
 cytokine_info_df = pd.read_csv(cytokine_info_file, index_col=0)
 cytokine_list = cytokine_info_df.index.values.tolist()

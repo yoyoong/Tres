@@ -14,7 +14,7 @@ from scipy.stats import pearsonr
 
 warnings.filterwarnings("ignore")
 
-celltype = 'NK'
+celltype = 'NK_act'
 expression_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data'
 signaling_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling'
 output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.qc_result'
@@ -33,6 +33,9 @@ elif celltype == 'Neutrophils':
 elif celltype == 'NK':
     response_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-4.NK_response'
     response_key = 'NK_signature'
+elif celltype == 'NK_act':
+    response_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-4-0.NK_act_response'
+    response_key = 'NK_act_signature'
 elif celltype == 'NFkB' or celltype == 'Hif1a':
     signaling_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-4.NK_response'
     response_path = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-4-2.{celltype}_response'

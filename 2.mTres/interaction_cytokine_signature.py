@@ -30,6 +30,9 @@ elif celltype == "Neutrophils" :
 elif celltype == "NK" :
     interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction/dataset_interaction'
     output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction'
+elif celltype == "NK_act" :
+    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4-0.NK_act_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4-0.NK_act_Interaction'
 
 model_matrix_file = pd.read_csv(model_matrix_file, sep='\t', index_col=0)
 all_cytokine_list = model_matrix_file.columns.values.tolist()
