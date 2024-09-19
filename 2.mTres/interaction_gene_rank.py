@@ -15,18 +15,18 @@ args = parser.parse_args()
 
 celltype = args.celltype
 cytokine_info_version = args.cytokine_info_version
-cytokine_info_file = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cytokine_info_{cytokine_info_version}.{celltype}.txt'
+cytokine_info_file = f'/sibcb1/bioinformatics/hongyuyang/dataset/Tres/0.model_file/cytokine_info_{cytokine_info_version}.{celltype}.txt'
 gene_annotation = '/sibcb2/bioinformatics/iGenome/STAR/GENCODE/human_hg38/ID/tx2g.txt'
 if celltype == "CD8T" :
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction'
 elif celltype == "Macrophage" :
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction'
 elif celltype == "Neutrophils" :
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction'
 elif celltype == "NK" :
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction'
 elif celltype == "NK_act" :
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4-0.NK_act_Interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-4-0.NK_act_Interaction'
 
 cytokine_info_df = pd.read_csv(cytokine_info_file, index_col=0)
 cytokine_list = cytokine_info_df.index.values.tolist()

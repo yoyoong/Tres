@@ -12,11 +12,11 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data/NHL_GSE128531')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data/NHL_GSE128531')
 parser.add_argument('-M', "--model_matrix_file", type=str, required=False, help="Quantitative signatures for cytokines.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature.centroid.expand')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/0.model_file/signature.centroid.expand')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='NHL_GSE128531')
 args = parser.parse_args()
 

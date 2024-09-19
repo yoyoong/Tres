@@ -15,19 +15,19 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data/ALL_GSE153697')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data/AML_GSE116256')
 parser.add_argument('-R', "--response_path", type=str, required=False, help="Precomputed response data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-2.Polarization/ALL_GSE153697.csv')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/3-2.Polarization/AML_GSE116256.csv')
 parser.add_argument('-S', "--signaling_path", type=str, required=False, help="Precomputed signaling data frame.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling/ALL_GSE153697.csv')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/2.Signaling/AML_GSE116256.csv')
 parser.add_argument('-CTR', "--celltype_mapping_rules_file", type=str, required=False, help="for paper data use",
                     default='')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='ALL_GSE153697')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-5.B_Interaction')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='AML_GSE116256')
 parser.add_argument('-C', "--count_threshold", type=int, default=100, required=False, help="Minimal number of cells needed for regression [100].")
 parser.add_argument('-SK', "--signaling_key", type=str, default='', required=False, help="Name of signaling in the data") # if null, calculate all cytokine
-parser.add_argument('-CT', "--celltype", type=str, default='Neutrophils', required=False, help="cell type")
+parser.add_argument('-CT', "--celltype", type=str, default='B', required=False, help="cell type")
 args = parser.parse_args()
 
 expression_path = args.expression_path
@@ -50,6 +50,8 @@ elif celltype == 'NK':
     response_key = 'NK_signature'
 elif celltype == 'NK_act':
     response_key = 'NK_act_signature'
+elif celltype == 'B':
+    response_key = 'B_signature'
 
 real_celltype = celltype
 if "_" in real_celltype:

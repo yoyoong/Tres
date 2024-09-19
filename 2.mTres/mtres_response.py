@@ -17,15 +17,15 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file or directory.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data/AEL_GSE142213')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/1.new_gem_data/AML_GSE154109')
 parser.add_argument('-G', "--genesets_GMT_file", type=str, required=False, help="Background gene sets in GMT format.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/Tres_kegg.NK.txt')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/0.model_file/Tres_kegg.B.txt')
 parser.add_argument('-S', "--signature_name_file", type=str, required=False, help="Names of the signatures, one name in one line.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature_name_file.txt')
-parser.add_argument('-CT', "--celltype", type=str, default='NK', required=False, help="cell type")
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/0.model_file/signature_name_file.txt')
+parser.add_argument('-CT', "--celltype", type=str, default='B', required=False, help="cell type")
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/3-4.NK_response')
-parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='AEL_GSE142213')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/3-5.B_response')
+parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.", default='AML_GSE154109')
 args = parser.parse_args()
 
 expression_path = args.expression_path
@@ -136,8 +136,12 @@ elif celltype == 'NK':
     result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'NK_signature')
 elif celltype == 'NK_act':
     result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'NK_act_signature')
+elif celltype == 'B':
+    result = profile_geneset_signature(expression, genesets_GMT_file, geneset_name, 'B_signature')
 
-
+if np.all(np.isnan(result)):
+    print(f"The result has not valid value.")
+    sys.exit(1)
 response_filename = os.path.join(output_file_directory, f'{output_tag}.csv')
 result.to_csv(response_filename, sep='\t')
 print("Process end!")

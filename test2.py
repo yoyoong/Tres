@@ -10,17 +10,17 @@ from sklearn.metrics import roc_auc_score
 from lifelines import CoxPHFitter
 from lifelines.fitters.kaplan_meier_fitter import KaplanMeierFitter
 
-# signature_df1 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/Tres.prediction_signature', sep='\t', index_col=0)
-# signature_df2 = pandas.read_csv('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/Tres_signature.negative.csv', index_col=0)
+# signature_df1 = pandas.read_csv('/sibcb1/bioinformatics/hongyuyang/dataset/Tres/test/Tres.prediction_signature', sep='\t', index_col=0)
+# signature_df2 = pandas.read_csv('/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/4.Interaction/Tres_signature.negative.csv', index_col=0)
 # gene_list = signature_df1.index.intersection(signature_df2.index)
 # signature_df1_filtered = signature_df1.loc[gene_list]
 # signature_df2_filtered = signature_df2.loc[gene_list]
 # correlation, _ = pearsonr(numpy.array(signature_df1_filtered['Tres']), numpy.array(signature_df2_filtered['Tres']))
 
-data_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test'
-output_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/result'
+data_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/test'
+output_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/test/result'
 
-signature_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/Tres_signature.negative.csv'
+signature_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/Tres_signature.negative.csv'
 
 font_size = 30
 figure_width = 7
@@ -100,7 +100,7 @@ def main():
         # try:
         #     output_data = data.copy()
         #     output_data.columns = [f'{sample}.{str(res)}' for sample, res in zip(list(output_data.columns), list(response))]
-        #     output_data.to_csv(f"/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/test/data/{title}.csv")
+        #     output_data.to_csv(f"/sibcb1/bioinformatics/hongyuyang/dataset/Tres/test/data/{title}.csv")
         # except:
         #     continue
 

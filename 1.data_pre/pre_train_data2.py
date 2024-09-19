@@ -10,9 +10,9 @@ from tqdm.autonotebook import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data/AEL_GSE142213.csv')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/1.gem_data/AEL_GSE142213.csv')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/code/Tres')
+                    default='/sibcb1/bioinformatics/hongyuyang/code/Tres')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.",
                     default='test')
 args = parser.parse_args()

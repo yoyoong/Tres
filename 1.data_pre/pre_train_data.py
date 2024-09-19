@@ -9,13 +9,13 @@ from tqdm.autonotebook import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-I', "--input", type=str, required=False, help="input file path",
-                    default='/sibcb2/bioinformatics2/fengyan/Project/Mus/scRNAseq/Rawdata/R23405568-NC1')
+                    default='/sibcb1/bioinformatics/fengyan/Project/Mus/scRNAseq/Rawdata/R23405568-NC1')
 parser.add_argument('-A', "--annotation", type=str, required=False, help="annotation file path",
-                    default='/sibcb2/bioinformatics2/fengyan/Project/Mus/Tres/annotation/Prepare/NC1_annotation.txt')
+                    default='/sibcb1/bioinformatics/fengyan/Project/Mus/Tres/annotation/Prepare/NC1_annotation.txt')
 parser.add_argument('-CTR', "--celltype_mapping_rules_file", type=str, required=False, help="Celltype mapping rules file, .txt format",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/tisch_celltype_mapping_rule.txt')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/0.model_file/tisch_celltype_mapping_rule.txt')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/code/Tres')
+                    default='/sibcb1/bioinformatics/hongyuyang/code/Tres')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.",
                     default='test')
 args = parser.parse_args()

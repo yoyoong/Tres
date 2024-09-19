@@ -18,19 +18,19 @@ args = parser.parse_args()
 celltype = args.celltype
 cytokine_info_version = args.version
 cytokine_info_version = '' if cytokine_info_version == '0' else f'_{cytokine_info_version}'
-cytokine_info_file = f'/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/cytokine_info{version}.{celltype}.txt'
+cytokine_info_file = f'/sibcb1/bioinformatics/hongyuyang/dataset/Tres/0.model_file/cytokine_info{version}.{celltype}.txt'
 if celltype == "CD8T" :
-    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/dataset_interaction'
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction'
+    interaction_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction'
 elif celltype == "Macrophage" :
-    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction'
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction'
+    interaction_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction'
 elif celltype == "Neutrophils" :
-    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction/dataset_interaction'
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction'
+    interaction_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction'
 elif celltype == "NK" :
-    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction/dataset_interaction'
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction'
+    interaction_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction'
 
 cytokine_info_df = pd.read_csv(cytokine_info, index_col=0)
 cytokine_list = cytokine_info_df.index.values.tolist()

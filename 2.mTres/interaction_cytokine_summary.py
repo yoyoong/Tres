@@ -13,24 +13,24 @@ parser.add_argument('-CT', "--celltype", type=str, default='CD8T', required=Fals
 args = parser.parse_args()
 
 celltype = args.celltype
-model_matrix_file = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/0.model_file/signature.centroid.expand'
+model_matrix_file = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/0.model_file/signature.centroid.expand'
 gene_annotation = '/sibcb2/bioinformatics/iGenome/STAR/GENCODE/human_hg38/ID/tx2g.txt'
 
 if celltype == "CD8T" :
-    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/dataset_interaction'
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction'
+    interaction_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-1.CD8T_Interaction'
 elif celltype == "Macrophage" :
-    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction'
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction'
+    interaction_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-2.Macrophage_Interaction'
 elif celltype == "Neutrophils" :
-    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction/dataset_interaction'
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction'
+    interaction_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-3.Neutrophils_Interaction'
 elif celltype == "NK" :
-    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction/dataset_interaction'
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction'
+    interaction_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-4.NK_Interaction'
 elif celltype == "NK_act" :
-    interaction_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4-0.NK_act_Interaction/dataset_interaction'
-    output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/5-4-0.NK_act_Interaction'
+    interaction_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-4-0.NK_act_Interaction/dataset_interaction'
+    output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/5-4-0.NK_act_Interaction'
 
 model_matrix_file = pd.read_csv(model_matrix_file, sep='\t', index_col=0)
 all_cytokine_list = model_matrix_file.columns.values.tolist()

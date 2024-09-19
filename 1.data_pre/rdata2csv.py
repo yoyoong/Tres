@@ -4,8 +4,16 @@ import pandas as pd
 import pyreadr
 import rpy2.robjects as robjects
 
-rdata_path = "/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.Macrophage_analysis/TCGA/raw_RData"
-output_path = "/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.Macrophage_analysis/TCGA/gem"
+parser = argparse.ArgumentParser()
+parser.add_argument('-CT', "--celltype", type=str, default='CD8T', required=False, help="cell type")
+parser.add_argument('-CIV', "--cytokine_info_version", type=int, default='2', required=False, help="cytokine info version")
+parser.add_argument('-CSV', "--cytokine_signature_version", type=int, default='1', required=False, help="cytokine signature version")
+parser.add_argument('-SFV', "--sample_filter_version", type=int, default='1', required=False, help="sample filter version")
+args = parser.parse_args()
+
+
+rdata_path = "/sibcb1/bioinformatics/hongyuyang/dataset/Tres/3-2.Macrophage_analysis/TCGA/raw_RData"
+output_path = "/sibcb1/bioinformatics/hongyuyang/dataset/Tres/3-2.Macrophage_analysis/TCGA/gem"
 annatation_path = "/sibcb2/bioinformatics/KnowledgeBase/Firehose_Methylation/RnBeads_450K_hg19_Probes_GR.RData"
 # annatation_rdata = pyreadr.read_r(annatation_path)
 # for key in annatation_rdata.keys():

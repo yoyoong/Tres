@@ -10,15 +10,15 @@ from sklearn.cluster import KMeans
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-I', "--input", type=str, required=False, help="input h5 files path",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.macrophage/GSE168710')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/4.macrophage/GSE168710')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.macrophage/GSE168710')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/4.macrophage/GSE168710')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.",
                     default='GSE168710')
 args = parser.parse_args()
 
-input_path = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.macrophage/GSE168710'
-output_file_directory = '/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.macrophage/GSE168710'
+input_path = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/4.macrophage/GSE168710'
+output_file_directory = '/sibcb1/bioinformatics/hongyuyang/dataset/Tres/4.macrophage/GSE168710'
 output_tag = 'GSE168710'
 
 # file_list = os.listdir(input_path)
@@ -30,7 +30,7 @@ output_tag = 'GSE168710'
 #     adata_list.append(adata)
 # adata = sc.concat(adata_list, join='inner', index_unique='.')
 
-adata = sc.read_h5ad('/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/4.macrophage/GSE168710/GSE168710_QC_normalized_exp.h5ad')
+adata = sc.read_h5ad('/sibcb1/bioinformatics/hongyuyang/dataset/Tres/4.macrophage/GSE168710/GSE168710_QC_normalized_exp.h5ad')
 
 # sc.pp.normalize_total(adata, target_sum=1e4)
 # sc.pp.log1p(adata, base=2)

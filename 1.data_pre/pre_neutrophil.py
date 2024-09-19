@@ -11,9 +11,9 @@ from numpy import float16
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-E', "--expression_path", type=str, required=False, help="Gene expression file.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024/gem.csv')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024/gem.csv')
 parser.add_argument('-D', "--output_file_directory", type=str, required=False, help="Directory for output files.",
-                    default='/sibcb2/bioinformatics2/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024')
+                    default='/sibcb1/bioinformatics/hongyuyang/dataset/Tres/2.tisch_data/1.neutrophil_data/Gao2024')
 parser.add_argument('-O', "--output_tag", type=str, required=False, help="Prefix for output files.",
                     default='Gao2024.Neutrophils')
 args = parser.parse_args()
